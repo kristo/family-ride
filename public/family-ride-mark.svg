@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Family Ride mark</title>
+  <desc id="desc">Sygnet Family Ride: dwa koła różnej wielkości, dorosłego i dziecka, na tle wzgórz i słońca.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#15453a"/>
+      <stop offset="1" stop-color="#0a2820"/>
+    </linearGradient>
+    <clipPath id="clip"><rect width="512" height="512" rx="120"/></clipPath>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+  <g clip-path="url(#clip)">
+    <circle cx="300" cy="190" r="86" fill="#f5b83d"/>
+    <path d="M0 316C90 256 170 286 256 316C340 346 430 286 512 256V512H0Z" fill="#1d5a4b"/>
+    <path d="M0 384C110 334 210 400 330 384C410 374 470 350 512 336V512H0Z" fill="#0a2820"/>
+    <circle cx="140" cy="404" r="62" stroke="#f6f4ee" stroke-width="22"/>
+    <circle cx="272" cy="426" r="40" stroke="#ff7a45" stroke-width="20"/>
+    <circle cx="140" cy="404" r="9" fill="#f6f4ee"/>
+    <circle cx="272" cy="426" r="8" fill="#ff7a45"/>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#e9f3f4"/>
+  <rect y="510" width="1200" height="290" fill="#d6e8d0"/>
+  <rect x="130" y="210" width="130" height="300" fill="#dcae74"/>
+  <polygon points="110,230 195,150 280,230" fill="#b17d4c"/>
+  <path d="M380 620H1090" stroke="#4e8fa3" stroke-width="18"/>
+  <circle cx="1010" cy="140" r="78" fill="#ffb85c"/>
+  <text x="70" y="95" fill="#2c697b" font-family="Arial, sans-serif" font-size="44" font-weight="700">Port i promenada</text>
+</svg>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="RowerowyWeekend" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Mierzeja Wislana Krynica Katy</name>
+  </metadata>
+  <trk>
+    <name>Mierzeja Wislana Krynica Katy</name>
+    <trkseg>
+      <trkpt lat="54.3820" lon="19.4500" />
+      <trkpt lat="54.3720" lon="19.4220" />
+      <trkpt lat="54.3600" lon="19.3960" />
+      <trkpt lat="54.3480" lon="19.3740" />
+      <trkpt lat="54.3360" lon="19.3550" />
+      <trkpt lat="54.3820" lon="19.4500" />
+    </trkseg>
+  </trk>
+</gpx>

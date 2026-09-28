@@ -1,0 +1,162 @@
+[
+  {
+    "id": "czorsztyn",
+    "name": "Pętla Jezioro Czorsztyńskie",
+    "region": "Małopolska",
+    "distanceKm": 28,
+    "elevationM": 250,
+    "minAge": 7,
+    "asphaltPct": 82,
+    "gravelPct": 18,
+    "rating": 4.6,
+    "description": "Widokowa pętla z mocnym odcinkiem przy zaporze. Dużo miejsc na postoje i regularne punkty gastro.",
+    "hardestPart": "Podjazd po 12 km, około 700 m stałego nachylenia",
+    "parking": "Parking przy zamku Niedzica, dużo miejsc do 9:00",
+    "food": "Pizza i ramen 8 minut od mety, menu dzieci",
+    "sleep": "Pole kamperowe nad jeziorem + domki rodzinne",
+    "attractions": ["Zamek Niedzica", "Rejs po jeziorze", "Plaża przy frytkach"],
+    "familyNote": "Dziecko 151 cm przejechało bez zejścia z roweru, 9-latek potrzebował holu na końcówce.",
+    "gpxUrl": "/gpx/czorsztyn.gpx",
+    "mapEmbedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=20.24%2C49.40%2C20.36%2C49.45&layer=mapnik",
+    "bestMonths": ["maj", "czerwiec", "wrzesień"],
+    "packingList": ["kaski", "hol rowerowy", "bidony", "lekka kurtka", "zestaw naprawczy"],
+    "verification": {
+      "level": "community",
+      "gpxQuality": "outline",
+      "updatedAt": "2026-09-25",
+      "note": "Kierunek trasy zgodny z realnym obszarem Czorsztyna, ale GPX jest uproszczonym szkicem do podmiany na pełny ślad."
+    },
+    "gallery": [
+      {
+        "src": "/photos/family-bike-1.jpg",
+        "alt": "Widok na jezioro i trasę",
+        "caption": "Szeroki odcinek z widokiem na jezioro"
+      },
+      {
+        "src": "/photos/family-bike-2.jpg",
+        "alt": "Podjazd przy zaporze",
+        "caption": "Najtrudniejszy fragment po 12 km"
+      }
+    ]
+  },
+  {
+    "id": "tylmanowa",
+    "name": "Velo Dunajec: Tylmanowa",
+    "region": "Małopolska",
+    "distanceKm": 18,
+    "elevationM": 120,
+    "minAge": 6,
+    "asphaltPct": 91,
+    "gravelPct": 9,
+    "rating": 4.8,
+    "description": "Spokojna trasa na pierwsze dłuższe wyjazdy, praktycznie bez aut i z przyjazną infrastrukturą.",
+    "hardestPart": "Krótki łącznik szutrowy przy moście, uwaga na luźny kamień",
+    "parking": "Duży parking przy boisku w Tylmanowej",
+    "food": "Bistro rodzinne przy rynku, szybkie zestawy po trasie",
+    "sleep": "Pensjonaty nad rzeką i kemping 10 minut od startu",
+    "attractions": ["Plaża nad Dunajcem", "Punkt widokowy na zakolu", "Most linowy"],
+    "familyNote": "Idealna pętla na budowanie pewności przed dłuższymi weekendami.",
+    "gpxUrl": "/gpx/tylmanowa.gpx",
+    "mapEmbedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=20.39%2C49.46%2C20.51%2C49.52&layer=mapnik",
+    "bestMonths": ["kwiecień", "maj", "czerwiec", "sierpień"],
+    "packingList": ["kaski", "rękawiczki", "woda", "przekąski", "powerbank"],
+    "verification": {
+      "level": "community",
+      "gpxQuality": "outline",
+      "updatedAt": "2026-09-25",
+      "note": "Odcinek odpowiada korytarzowi Velo Dunajec, ale wymaga dogrania pełnego śladu GPX przed użyciem nawigacyjnym."
+    },
+    "gallery": [
+      {
+        "src": "/photos/family-bike-2.jpg",
+        "alt": "Ścieżka nad Dunajcem",
+        "caption": "Spokojny odcinek bez ruchu aut"
+      },
+      {
+        "src": "/photos/family-bike-3.jpg",
+        "alt": "Most i zakole rzeki",
+        "caption": "Miejsce na dłuższy postój rodzinny"
+      }
+    ]
+  },
+  {
+    "id": "mierzeja",
+    "name": "Mierzeja Wiślana: Krynica - Kąty",
+    "region": "Pomorskie",
+    "distanceKm": 22,
+    "elevationM": 70,
+    "minAge": 8,
+    "asphaltPct": 65,
+    "gravelPct": 35,
+    "rating": 4.2,
+    "description": "Lekka technicznie trasa z morskim klimatem, ale z odcinkami podatnymi na silny wiatr.",
+    "hardestPart": "Boczny wiatr na otwartych odcinkach przy lesie",
+    "parking": "Parkingi przy porcie, warto być przed 8:30",
+    "food": "Ramen i rybne bistro przy promenadzie",
+    "sleep": "Kwatery rodzinne oraz pola kamperowe przy lesie",
+    "attractions": ["Latarnia morska", "Port rybacki", "Wieża obserwacyjna"],
+    "familyNote": "Start rano robi ogromną różnicę: spokojniej i chłodniej.",
+    "gpxUrl": "/gpx/mierzeja.gpx",
+    "mapEmbedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=19.34%2C54.30%2C19.54%2C54.40&layer=mapnik",
+    "bestMonths": ["maj", "czerwiec", "lipiec", "wrzesień"],
+    "packingList": ["wiatrówka", "okulary", "krem UV", "czapka", "izotonik"],
+    "verification": {
+      "level": "community",
+      "gpxQuality": "outline",
+      "updatedAt": "2026-09-25",
+      "note": "Opis pasuje do regionu Mierzei Wiślanej, jednak przebieg GPX ma charakter roboczy i musi być zweryfikowany terenowo."
+    },
+    "gallery": [
+      {
+        "src": "/photos/family-bike-3.jpg",
+        "alt": "Odcinek przy wydmach",
+        "caption": "Otwarty teren i morski wiatr"
+      },
+      {
+        "src": "/photos/family-bike-1.jpg",
+        "alt": "Promenada i port",
+        "caption": "Meta z szybkim dostępem do gastro"
+      }
+    ]
+  },
+  {
+    "id": "greenvelo",
+    "name": "Green Velo: Augustów - Studzieniczna",
+    "region": "Podlaskie",
+    "distanceKm": 24,
+    "elevationM": 95,
+    "minAge": 7,
+    "asphaltPct": 74,
+    "gravelPct": 26,
+    "rating": 4.4,
+    "description": "Leśna trasa z ładnym rytmem, dobry balans między asfaltami i ubitym szutrem.",
+    "hardestPart": "Piaszczysty fragment przy 17 km, około 300 m",
+    "parking": "Parking miejski przy kanale Augustowskim",
+    "food": "Pizzeria przy rynku i lodziarnia z tarasem",
+    "sleep": "Noclegi rodzinne przy jeziorze, kamper park 15 minut",
+    "attractions": ["Rejs kanalem", "Sanktuarium Studzieniczna", "Plaza miejska"],
+    "familyNote": "Dziecko 8 lat przejechało całość, na piasku było prowadzenie roweru.",
+    "gpxUrl": "/gpx/greenvelo.gpx",
+    "mapEmbedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=22.88%2C53.80%2C23.05%2C53.91&layer=mapnik",
+    "bestMonths": ["maj", "czerwiec", "sierpień", "wrzesień"],
+    "packingList": ["kaski", "środek na komary", "woda", "zapasowa dętka", "folia przeciwdeszczowa"],
+    "verification": {
+      "level": "community",
+      "gpxQuality": "outline",
+      "updatedAt": "2026-09-25",
+      "note": "Kierunek Green Velo jest zgodny z obszarem Augustów-Studzieniczna, ale plik GPX to szkic wymagający podmiany."
+    },
+    "gallery": [
+      {
+        "src": "/photos/family-bike-2.jpg",
+        "alt": "Leśny odcinek Green Velo",
+        "caption": "Ubity szuter i cień drzew"
+      },
+      {
+        "src": "/photos/family-bike-3.jpg",
+        "alt": "Odcinek przy jeziorze",
+        "caption": "Miejsce na piknik po trasie"
+      }
+    ]
+  }
+]

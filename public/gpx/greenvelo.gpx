@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="RowerowyWeekend" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Green Velo Augustow Studzieniczna</name>
+  </metadata>
+  <trk>
+    <name>Green Velo Augustow Studzieniczna</name>
+    <trkseg>
+      <trkpt lat="53.8440" lon="22.9800" />
+      <trkpt lat="53.8520" lon="22.9520" />
+      <trkpt lat="53.8610" lon="22.9280" />
+      <trkpt lat="53.8730" lon="22.9110" />
+      <trkpt lat="53.8580" lon="22.9420" />
+      <trkpt lat="53.8440" lon="22.9800" />
+    </trkseg>
+  </trk>
+</gpx>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="RowerowyWeekend" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Petla Jezioro Czorsztynskie</name>
+  </metadata>
+  <trk>
+    <name>Petla Jezioro Czorsztynskie</name>
+    <trkseg>
+      <trkpt lat="49.4385" lon="20.3010" />
+      <trkpt lat="49.4320" lon="20.3200" />
+      <trkpt lat="49.4200" lon="20.3380" />
+      <trkpt lat="49.4130" lon="20.3130" />
+      <trkpt lat="49.4290" lon="20.2850" />
+      <trkpt lat="49.4385" lon="20.3010" />
+    </trkseg>
+  </trk>
+</gpx>

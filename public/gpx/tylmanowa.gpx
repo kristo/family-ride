@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="RowerowyWeekend" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Velo Dunajec Tylmanowa</name>
+  </metadata>
+  <trk>
+    <name>Velo Dunajec Tylmanowa</name>
+    <trkseg>
+      <trkpt lat="49.4740" lon="20.3650" />
+      <trkpt lat="49.4810" lon="20.3860" />
+      <trkpt lat="49.4950" lon="20.4120" />
+      <trkpt lat="49.4880" lon="20.4380" />
+      <trkpt lat="49.4760" lon="20.4170" />
+      <trkpt lat="49.4740" lon="20.3650" />
+    </trkseg>
+  </trk>
+</gpx>

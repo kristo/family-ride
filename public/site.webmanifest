@@ -1,0 +1,21 @@
+{
+  "name": "Family Ride",
+  "short_name": "FamilyRide",
+  "description": "Sprawdzone trasy rowerowe dla rodzin: GPX, bezpieczenstwo i gotowe plany weekendowe.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f4ee",
+  "theme_color": "#0c2f25",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

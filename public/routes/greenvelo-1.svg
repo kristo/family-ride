@@ -1,0 +1,11 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#e6f2e1"/>
+  <rect y="520" width="1200" height="280" fill="#b6d8a9"/>
+  <circle cx="200" cy="130" r="72" fill="#ffd180"/>
+  <rect x="130" y="190" width="44" height="330" fill="#4d7a4d"/>
+  <circle cx="152" cy="170" r="70" fill="#6ea16e"/>
+  <rect x="390" y="170" width="48" height="350" fill="#4d7a4d"/>
+  <circle cx="414" cy="150" r="84" fill="#7aad73"/>
+  <path d="M70 640C230 580 420 580 600 640C760 695 950 700 1120 655" stroke="#5a8c5a" stroke-width="18" fill="none"/>
+  <text x="70" y="95" fill="#2c5b2c" font-family="Arial, sans-serif" font-size="44" font-weight="700">Green Velo</text>
+</svg>

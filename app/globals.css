@@ -1,26 +1,395 @@
 @import "tailwindcss";
 
+/*
+  Paleta "Pine & Ember": głęboka zieleń lasu, ciepła biel papieru,
+  wypalony pomarańcz jako akcent i jeziorna zieleń dla akcji drugorzędnych.
+  Nazwy zmiennych zostały zachowane, żeby podstrony dziedziczyły nową paletę.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --sand: #f6f4ee;
+  --paper: #ffffff;
+  --ink: #10231c;
+  --muted: #56675f;
+  --accent: #cf4310;
+  --accent-2: #0d6b62;
+  --line: #e2dfd5;
+
+  --pine: #0c2f25;
+  --pine-2: #15453a;
+  --ember-soft: #fde9df;
+  --mint: #e0f0e8;
+  --sun: #f5b83d;
+
+  /* Tokeny "do tekstu" i "do wypełnień" rozdzielone, bo w ciemnym motywie
+     jasny akcent na tekście musi być jaśniejszy niż akcent pod białym napisem. */
+  --surface-2: #efece3;
+  --accent-text: #cf4310;
+  --accent-2-text: #0d6b62;
+  --on-mint: #0c2f25;
+  --chip-on-bg: #0c2f25;
+  --chip-on-fg: #ffffff;
+
+  color-scheme: light;
+}
+
+/* Ciemny motyw: wybierany przełącznikiem w nagłówku (klasa .dark na <html>),
+   domyślnie zgodny z ustawieniem systemu (skrypt w app/layout.tsx). */
+.dark {
+  --sand: #0a1310;
+  --paper: #111f19;
+  --surface-2: #172a22;
+  --ink: #e9f0eb;
+  --muted: #9aada3;
+  --line: #22362d;
+  --accent: #d24a14;
+  --accent-2: #0f7c72;
+  --accent-text: #ff8b5e;
+  --accent-2-text: #4fc9b8;
+  --pine: #0f2d23;
+  --pine-2: #17382c;
+  --ember-soft: #3b2015;
+  --mint: #16362b;
+  --on-mint: #a9e7cf;
+  --chip-on-bg: #e9f0eb;
+  --chip-on-fg: #0a1310;
+
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-bricolage);
+  --font-mono: var(--font-manrope);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--sand);
+  color: var(--ink);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-bricolage), var(--font-manrope), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Klasy używane przez podstrony (trasa, dodawanie, admin). */
+.glass-card {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgba(16, 35, 28, 0.04);
+}
+
+.mag-shadow {
+  box-shadow: 0 20px 60px rgba(12, 47, 37, 0.16);
+}
+
+/* Karty tras */
+.route-card {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.route-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(12, 47, 37, 0.14);
+}
+
+.route-card .route-photo {
+  transition: transform 600ms cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+.route-card:hover .route-photo {
+  transform: scale(1.05);
+}
+
+/* Chipy filtrów */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.chip:hover {
+  border-color: var(--muted);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--chip-on-bg);
+  background: var(--chip-on-bg);
+  color: var(--chip-on-fg);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.story-feature,
+.story-side {
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+
+.story-feature:hover,
+.story-side:hover {
+  transform: translateY(-3px);
+}
+
+.icon-dot {
+  display: inline-flex;
+  height: 1.8rem;
+  width: 1.8rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.consent-banner {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 70;
+  width: min(32rem, calc(100vw - 2rem));
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--paper);
+  box-shadow: 0 20px 42px rgba(12, 47, 37, 0.18);
+  padding: 0.95rem;
+}
+
+.consent-banner p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.consent-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.consent-btn {
+  border-radius: 0.65rem;
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.consent-btn-muted {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.consent-btn-primary {
+  border-color: var(--accent-2);
+  background: var(--accent-2);
+  color: #fff;
+}
+
+/* Pojawianie się sekcji przy scrollu (komponent Reveal). */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 650ms cubic-bezier(0.2, 0.7, 0.25, 1), transform 650ms cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 650ms cubic-bezier(0.2, 0.7, 0.25, 1) both;
+}
+
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-up {
+  animation: sheet-up 280ms cubic-bezier(0.2, 0.7, 0.25, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .route-card,
+  .route-card .route-photo,
+  .story-feature,
+  .story-side {
+    transition: none;
+  }
+
+  .route-card:hover,
+  .route-card:hover .route-photo,
+  .story-feature:hover,
+  .story-side:hover {
+    transform: none;
+  }
+
+  .animate-fade-up,
+  .animate-sheet-up {
+    animation: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 30%, white);
+  color: var(--ink);
+}
+
+/*
+  Ciemny motyw dla podstron (trasa, dodawanie, admin), które używają twardych
+  klas Tailwinda (bg-white, pastelowe statusy). Nie są w warstwie @layer,
+  więc mają pierwszeństwo przed narzędziami Tailwinda.
+*/
+.dark .bg-white {
+  background-color: var(--paper);
+}
+
+.dark .bg-white\/70 {
+  background-color: color-mix(in oklab, var(--paper) 70%, transparent);
+}
+
+.dark .bg-white\/75 {
+  background-color: color-mix(in oklab, var(--paper) 75%, transparent);
+}
+
+.dark .bg-white\/80 {
+  background-color: color-mix(in oklab, var(--paper) 80%, transparent);
+}
+
+.dark .bg-white\/85 {
+  background-color: color-mix(in oklab, var(--paper) 85%, transparent);
+}
+
+.dark .bg-white\/92,
+.dark .bg-white\/95 {
+  background-color: color-mix(in oklab, var(--paper) 94%, transparent);
+}
+
+.dark .bg-black\/5,
+.dark .hover\:bg-black\/5:hover {
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.dark .bg-\[\#fff4e8\],
+.dark .bg-\[\#ece3d7\],
+.dark .bg-\[\#eef3ef\],
+.dark .bg-\[\#fcebd8\],
+.dark .bg-slate-50 {
+  background-color: var(--surface-2);
+}
+
+.dark .bg-\[\#e7f5e8\] {
+  background-color: #143526;
+}
+
+.dark .bg-\[\#ffe9e2\] {
+  background-color: #3d1f17;
+}
+
+.dark .bg-amber-50 {
+  background-color: rgb(245 184 61 / 0.14);
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgb(52 211 153 / 0.14);
+}
+
+.dark .bg-rose-50 {
+  background-color: rgb(251 113 133 / 0.14);
+}
+
+.dark .text-amber-800,
+.dark .text-amber-900 {
+  color: #f7d791;
+}
+
+.dark .text-emerald-700,
+.dark .text-emerald-800,
+.dark .text-emerald-900 {
+  color: #86efc4;
+}
+
+.dark .text-rose-800,
+.dark .text-rose-900 {
+  color: #fda4b1;
+}
+
+.dark .text-slate-700 {
+  color: var(--muted);
+}
+
+.dark .border-amber-300 {
+  border-color: rgb(245 184 61 / 0.4);
+}
+
+.dark .border-emerald-300 {
+  border-color: rgb(52 211 153 / 0.4);
+}
+
+.dark .border-rose-300 {
+  border-color: rgb(251 113 133 / 0.4);
+}
+
+.dark .border-slate-300 {
+  border-color: var(--line);
 }

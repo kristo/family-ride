@@ -1,0 +1,8 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f4e3cd"/>
+  <polygon points="0,560 350,420 620,560" fill="#9ec9b1"/>
+  <polygon points="480,560 820,380 1200,560" fill="#7ab392"/>
+  <path d="M120 640L540 430L1050 640" stroke="#204b39" stroke-width="20" fill="none" stroke-linecap="round"/>
+  <circle cx="980" cy="140" r="80" fill="#f05a24" fill-opacity="0.75"/>
+  <text x="90" y="95" fill="#204b39" font-family="Arial, sans-serif" font-size="44" font-weight="700">Podjazd km 12</text>
+</svg>

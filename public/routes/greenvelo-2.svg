@@ -1,0 +1,8 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#edf4de"/>
+  <rect y="530" width="1200" height="270" fill="#d8e9c8"/>
+  <path d="M0 500C260 440 480 450 700 500C860 535 1020 535 1200 492" stroke="#7ab0c1" stroke-width="34" fill="none"/>
+  <path d="M70 660C250 612 470 610 650 660C830 706 1020 706 1160 674" stroke="#6f9d60" stroke-width="18" fill="none"/>
+  <circle cx="1040" cy="140" r="76" fill="#ffb86b"/>
+  <text x="70" y="95" fill="#34643b" font-family="Arial, sans-serif" font-size="44" font-weight="700">Jezioro i piknik</text>
+</svg>

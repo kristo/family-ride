@@ -1,0 +1,7 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f7ead9"/>
+  <rect y="470" width="1200" height="330" fill="#9ecfd3"/>
+  <path d="M0 540C130 500 290 500 420 540C620 600 790 610 1200 520" stroke="#19647e" stroke-width="16" fill="none"/>
+  <path d="M80 680C280 620 510 620 700 670C870 714 1020 714 1160 686" stroke="#c6a476" stroke-width="20" fill="none"/>
+  <text x="70" y="95" fill="#1b5d73" font-family="Arial, sans-serif" font-size="44" font-weight="700">Mierzeja</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#edf6e9"/>
+  <rect y="540" width="1200" height="260" fill="#cde5cc"/>
+  <path d="M80 560H1120" stroke="#4f7f62" stroke-width="22"/>
+  <path d="M600 210V560" stroke="#355b46" stroke-width="18"/>
+  <path d="M420 360H780" stroke="#355b46" stroke-width="14"/>
+  <circle cx="220" cy="170" r="74" fill="#ffc57a"/>
+  <text x="70" y="95" fill="#254a38" font-family="Arial, sans-serif" font-size="44" font-weight="700">Zakole Dunajca</text>
+</svg>

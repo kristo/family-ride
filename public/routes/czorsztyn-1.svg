@@ -1,0 +1,8 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#fbe8cf"/>
+  <rect y="510" width="1200" height="290" fill="#cbe4d4"/>
+  <circle cx="180" cy="140" r="90" fill="#f6b26b"/>
+  <path d="M80 560C280 470 520 470 700 560C860 640 1020 640 1140 580" stroke="#2d6a4f" stroke-width="16" stroke-linecap="round"/>
+  <path d="M720 420C780 360 860 340 940 360C990 373 1040 405 1100 450" stroke="#0d4f66" stroke-width="14" fill="none"/>
+  <text x="80" y="90" fill="#143b2d" font-family="Arial, sans-serif" font-size="44" font-weight="700">Czorsztyn</text>
+</svg>

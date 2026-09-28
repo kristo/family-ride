@@ -1,0 +1,7 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#e7f2e8"/>
+  <rect y="520" width="1200" height="280" fill="#b9dec2"/>
+  <path d="M0 560C170 500 320 500 470 560C670 640 880 640 1200 540" stroke="#3a7d5c" stroke-width="18" fill="none"/>
+  <path d="M0 610C200 560 360 560 520 610C720 675 900 670 1200 590" stroke="#79ad8f" stroke-width="12" fill="none"/>
+  <text x="70" y="90" fill="#1c4a35" font-family="Arial, sans-serif" font-size="44" font-weight="700">Tylmanowa</text>
+</svg>
