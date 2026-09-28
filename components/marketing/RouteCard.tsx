@@ -91,6 +91,21 @@ export function RouteCard({ route, isCompared, compareDisabled, onToggleCompare 
 
         <p className="line-clamp-2 text-sm leading-relaxed text-[var(--muted)]">{route.description}</p>
 
+        {route.mapEmbedUrl && (
+          <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--paper)]">
+            <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Podgląd mapy</div>
+            <div className="aspect-[16/7] border-t border-[var(--line)]">
+              <iframe
+                title={`Mapa trasy ${route.name}`}
+                src={route.mapEmbedUrl}
+                loading="lazy"
+                className="h-full w-full"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </div>
+        )}
+
         <dl className="grid grid-cols-3 divide-x divide-[var(--line)] rounded-xl bg-[var(--sand)] py-3 text-center">
           <div className="px-2">
             <dt className="sr-only">Dystans</dt>

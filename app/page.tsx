@@ -14,10 +14,7 @@ import { PhotoCredit } from "@/components/ui/PhotoCredit";
 import { Reveal } from "@/components/ui/Reveal";
 import { defaultPhotoStories } from "@/lib/default-photo-stories";
 import { trackNewsletterSignup } from "@/lib/marketing-events";
-import { getAllRoutes } from "@/lib/routes";
 import type { PhotoStory, Route } from "@/lib/types";
-
-const baseRoutes = getAllRoutes();
 
 const ageOptions = [6, 7, 8, 9, 10, 12];
 const ratingOptions = [3.5, 4, 4.3, 4.6];
@@ -28,7 +25,7 @@ const PAGE_SIZE = 9;
 const DEFAULT_AGE = 8;
 const DEFAULT_RATING = 4;
 const DEFAULT_ASPHALT = 60;
-const DEFAULT_SORT = "rating-desc";
+const DEFAULT_SORT = "added-desc";
 
 const heroPhoto = {
   src: "/photos/DSC_0381.jpg",
@@ -138,16 +135,7 @@ function HomeContent() {
     .slice(0, MAX_COMPARE);
 
   const routes = useMemo(() => {
-    const merged = [...baseRoutes, ...communityRoutes];
-    const uniqueById = new Map<string, Route>();
-
-    for (const route of merged) {
-      if (!uniqueById.has(route.id)) {
-        uniqueById.set(route.id, route);
-      }
-    }
-
-    return [...uniqueById.values()];
+    return [...communityRoutes];
   }, [communityRoutes]);
 
   const setQueryParams = (changes: Record<string, string | null>) => {
@@ -187,6 +175,13 @@ function HomeContent() {
     });
 
     const sorted = [...filtered];
+    if (sortBy === "added-desc") {
+      sorted.sort((a, b) => {
+        const aAddedAt = a.createdAt ?? `${a.verification.updatedAt}T00:00:00.000Z`;
+        const bAddedAt = b.createdAt ?? `${b.verification.updatedAt}T00:00:00.000Z`;
+        return bAddedAt.localeCompare(aAddedAt);
+      });
+    }
     if (sortBy === "rating-desc") {
       sorted.sort((a, b) => b.rating - a.rating);
     }
@@ -449,6 +444,7 @@ function HomeContent() {
                   onChange={(event) => setQueryParams({ sort: event.target.value === DEFAULT_SORT ? null : event.target.value })}
                   className="chip cursor-pointer pr-2"
                 >
+                  <option value="added-desc">Najnowsze dodane</option>
                   <option value="rating-desc">Ocena: najwyższa</option>
                   <option value="distance-asc">Dystans: najkrótszy</option>
                   <option value="distance-desc">Dystans: najdłuższy</option>

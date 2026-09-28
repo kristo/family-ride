@@ -18,6 +18,14 @@ function isBlobEnabled(): boolean {
 const MAX_BODY_LENGTH = 20000;
 const MAX_STORY_PHOTOS = 40;
 
+function createSummaryFromBody(body: string): string {
+  const compact = body.replace(/\s+/g, " ").trim();
+  if (compact.length <= 170) {
+    return compact;
+  }
+  return `${compact.slice(0, 167).trimEnd()}...`;
+}
+
 function normalizePhotos(photos: unknown): PhotoStoryPhoto[] {
   if (!Array.isArray(photos)) {
     return [];
@@ -30,8 +38,7 @@ function normalizePhotos(photos: unknown): PhotoStoryPhoto[] {
     if (!src) {
       continue;
     }
-    const caption = typeof photo?.caption === "string" ? photo.caption.trim() : "";
-    result.push(caption ? { src, caption } : { src });
+    result.push({ src });
   }
   return result;
 }
@@ -39,14 +46,16 @@ function normalizePhotos(photos: unknown): PhotoStoryPhoto[] {
 function normalizeStory(story: Partial<PhotoStory>, index: number): PhotoStory | null {
   const src = typeof story.src === "string" ? story.src.trim() : "";
   const title = typeof story.title === "string" ? story.title.trim() : "";
-  const text = typeof story.text === "string" ? story.text.trim() : "";
   const tag = typeof story.tag === "string" ? story.tag.trim() : "";
+  const bodyRaw = typeof story.body === "string" ? story.body.trim().slice(0, MAX_BODY_LENGTH) : "";
+  const legacyText = typeof story.text === "string" ? story.text.trim() : "";
+  const body = bodyRaw || legacyText;
+  const text = createSummaryFromBody(body);
 
-  if (!src || !title || !text || !tag) {
+  if (!src || !title || !tag || !body || !text) {
     return null;
   }
 
-  const body = typeof story.body === "string" ? story.body.trim().slice(0, MAX_BODY_LENGTH) : "";
   const photos = normalizePhotos(story.photos);
 
   return {

@@ -68,8 +68,8 @@ type VerificationChecklist = {
 
 type PhotoStoryForm = {
   title: string;
-  text: string;
   tag: string;
+  body: string;
 };
 
 const initialVerificationChecklist: VerificationChecklist = {
@@ -81,8 +81,9 @@ const initialVerificationChecklist: VerificationChecklist = {
 
 const initialPhotoStoryForm: PhotoStoryForm = {
   title: "Start bez pośpiechu",
-  text: "Pierwsze kilometry są płaskie i osłonięte od wiatru, więc dzieci łapią rytm bez presji. To dobry moment, żeby sprawdzić tempo i nawodnienie.",
   tag: "Warm-up",
+  body:
+    "Startujemy spokojnie i dajemy dzieciom czas na złapanie rytmu.\n\nPo około 30-40 minutach warto zrobić krótki postój na wodę i przekąskę, zanim pojawi się pierwsza zmiana tempa.\n\nW drugiej części trasy dobrze działa zasada: krótki odcinek jazdy i chwila aktywnej przerwy.",
 };
 
 const initialState: FormState = {
@@ -209,6 +210,7 @@ async function preparePhotoForUpload(file: File): Promise<File> {
 
 export default function AdminPage() {
   const [form, setForm] = useState<FormState>(initialState);
+  const [editingRouteId, setEditingRouteId] = useState<string | null>(null);
   const [publishedRoutes, setPublishedRoutes] = useState<Route[]>([]);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
   const [gpxFiles, setGpxFiles] = useState<GpxListItem[]>([]);
@@ -310,6 +312,54 @@ export default function AdminPage() {
     }
   };
 
+  const fillFormFromRoute = (route: Route) => {
+    setEditingRouteId(route.id);
+    setImportedFromStrava(Boolean(route.stravaUrl));
+    setImportedSurfaceEstimate(route.surfaceEstimate ?? null);
+    setStatus("idle");
+    setStatusMessage("");
+
+    setForm({
+      name: route.name,
+      region: route.region,
+      distanceKm: String(route.distanceKm),
+      elevationM: String(route.elevationM),
+      minAge: String(route.minAge),
+      asphaltPct: String(route.asphaltPct),
+      rating: String(route.rating),
+      description: route.description,
+      hardestPart: route.hardestPart,
+      parking: route.parking,
+      food: route.food,
+      sleep: route.sleep,
+      attractionsCsv: route.attractions.join(", "),
+      familyNote: route.familyNote,
+      gpxUrl: route.gpxUrl,
+      mapEmbedUrl: route.mapEmbedUrl,
+      stravaUrl: route.stravaUrl ?? "",
+      videoUrl: route.videoUrl ?? "",
+      photoUrlsCsv: route.gallery.map((item) => item.src).join(", "),
+      verificationLevel: route.verification.level,
+    });
+
+    setVerificationChecklist({
+      routeLineReviewed: route.verification.level === "verified",
+      metricsReviewed: route.verification.level === "verified",
+      logisticsReviewed: route.verification.level === "verified",
+      familySafetyReviewed: route.verification.level === "verified",
+    });
+  };
+
+  const resetRouteForm = () => {
+    setEditingRouteId(null);
+    setForm(initialState);
+    setVerificationChecklist(initialVerificationChecklist);
+    setImportedFromStrava(false);
+    setImportedSurfaceEstimate(null);
+    setStatusMessage("");
+    setStatus("idle");
+  };
+
   const loadStravaStatus = async () => {
     setStravaLoading(true);
     try {
@@ -407,6 +457,12 @@ export default function AdminPage() {
       return;
     }
 
+    if (photoStoryForm.body.trim().length < 40) {
+      setPhotoStoriesUploadStatus("error");
+      setPhotoStoriesUploadMessage("Dodaj dłuższą treść historii (minimum 40 znaków), a potem prześlij zdjęcia.");
+      return;
+    }
+
     setPhotoStoriesUploadStatus("uploading");
     setPhotoStoriesUploadMessage("Wgrywanie zdjęć...");
 
@@ -432,10 +488,9 @@ export default function AdminPage() {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           src: payload.file.url,
           title: photoStoryForm.title.trim() || "Start bez pośpiechu",
-          text:
-            photoStoryForm.text.trim() ||
-            "Pierwsze kilometry są płaskie i osłonięte od wiatru, więc dzieci łapią rytm bez presji. To dobry moment, żeby sprawdzić tempo i nawodnienie.",
+          text: "",
           tag: photoStoryForm.tag.trim() || "Warm-up",
+          body: photoStoryForm.body.trim() || undefined,
         });
       } catch (error) {
         setPhotoStoriesUploadStatus("error");
@@ -492,18 +547,18 @@ export default function AdminPage() {
       prev.map((story) => (story.id === storyId ? { ...story, photos: [...(story.photos ?? []), ...uploaded] } : story))
     );
     setPhotoStoriesUploadStatus("ok");
-    setPhotoStoriesUploadMessage(`Dodano ${uploaded.length} zdjęć do galerii. Kliknij "Zapisz kolejność i opisy", aby opublikować.`);
+    setPhotoStoriesUploadMessage(`Dodano ${uploaded.length} zdjęć do galerii. Kliknij "Zapisz historie", aby opublikować.`);
   };
 
-  const updateStoryGalleryPhoto = (storyId: string, photoIndex: number, changes: Partial<PhotoStoryPhoto>) => {
-    setPhotoStories((prev) =>
-      prev.map((story) =>
-        story.id === storyId
-          ? { ...story, photos: (story.photos ?? []).map((photo, index) => (index === photoIndex ? { ...photo, ...changes } : photo)) }
-          : story
-      )
-    );
-  };
+    const updateStoryGalleryPhoto = (storyId: string, photoIndex: number, changes: Partial<PhotoStoryPhoto>) => {
+      setPhotoStories((prev) =>
+        prev.map((story) =>
+          story.id === storyId
+            ? { ...story, photos: (story.photos ?? []).map((photo, index) => (index === photoIndex ? { ...photo, ...changes } : photo)) }
+            : story
+        )
+      );
+    };
 
   const removeStoryGalleryPhoto = (storyId: string, photoIndex: number) => {
     setPhotoStories((prev) =>
@@ -673,6 +728,7 @@ export default function AdminPage() {
     return () => {
       window.clearTimeout(timerId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const moderateSubmission = async (id: string, action: "approve" | "reject") => {
@@ -829,6 +885,58 @@ export default function AdminPage() {
     }
   };
 
+  const uploadRoutePhotos = async (files: FileList) => {
+    const fileItems = Array.from(files);
+    if (fileItems.length === 0) {
+      return;
+    }
+
+    setPhotoUploadStatus("uploading");
+    setPhotoUploadMessage(`Wgrywanie ${fileItems.length} zdjęć...`);
+
+    const uploadedUrls: string[] = [];
+
+    for (const file of fileItems) {
+      try {
+        const preparedFile = await preparePhotoForUpload(file);
+        const body = new FormData();
+        body.append("file", preparedFile);
+
+        const response = await fetch("/api/admin/media?kind=photo", {
+          method: "POST",
+          body,
+        });
+
+        const payload = (await response.json()) as {
+          error?: string;
+          file?: { url?: string; name?: string };
+        };
+
+        if (!response.ok || !payload.file?.url) {
+          throw new Error(payload.error ?? "Upload zdjęcia nie powiódł się.");
+        }
+
+        uploadedUrls.push(payload.file.url);
+      } catch (error) {
+        setPhotoUploadStatus("error");
+        setPhotoUploadMessage(error instanceof Error ? error.message : "Nie udało się przesłać zdjęć do trasy.");
+        return;
+      }
+    }
+
+    setForm((prev) => {
+      const current = csvToList(prev.photoUrlsCsv);
+      const merged = [...current, ...uploadedUrls];
+      return {
+        ...prev,
+        photoUrlsCsv: merged.join(", "),
+      };
+    });
+
+    setPhotoUploadStatus("ok");
+    setPhotoUploadMessage(`Dodano ${uploadedUrls.length} zdjęć do galerii trasy.`);
+  };
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -907,8 +1015,11 @@ export default function AdminPage() {
     };
 
     try {
-      const response = await fetch("/api/admin/routes", {
-        method: "POST",
+      const endpoint = editingRouteId ? `/api/admin/routes/${editingRouteId}` : "/api/admin/routes";
+      const method = editingRouteId ? "PATCH" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -926,11 +1037,8 @@ export default function AdminPage() {
         return;
       }
 
-      setForm(initialState);
-      setVerificationChecklist(initialVerificationChecklist);
-      setImportedFromStrava(false);
-      setImportedSurfaceEstimate(null);
-      setStatusMessage("Trasa zapisana w bazie i opublikowana.");
+      resetRouteForm();
+      setStatusMessage(editingRouteId ? "Zmiany trasy zostały zapisane." : "Trasa zapisana w bazie i opublikowana.");
       setStatus("saved");
       await loadPublishedRoutes();
     } catch {
@@ -952,6 +1060,9 @@ export default function AdminPage() {
       }
 
       await loadPublishedRoutes();
+      if (editingRouteId === id) {
+        resetRouteForm();
+      }
       setStatusMessage("Trasa usunięta.");
       setStatus("saved");
     } catch {
@@ -974,7 +1085,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[var(--sand)] px-5 py-10 text-[var(--ink)] md:px-10">
       <main className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-6 shadow-[0_10px_34px_rgba(16,32,22,.1)] md:p-8">
+        <section id="route-editor" className="rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-6 shadow-[0_10px_34px_rgba(16,32,22,.1)] md:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-3xl font-bold md:text-4xl">Family Ride Admin</h1>
             <div className="flex flex-wrap gap-2">
@@ -989,6 +1100,13 @@ export default function AdminPage() {
           <p className="mt-2 text-sm text-[var(--muted)]">
             Dodaj trasę bez edycji plików. Trasy zapisujemy w bazie (Vercel Blob) i publikujemy od razu na stronie głównej.
           </p>
+
+          <nav className="mt-4 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.08em]" aria-label="Nawigacja panelu admina">
+            <a href="#route-editor" className="rounded-full border border-[var(--line)] bg-white px-3 py-1.5 hover:bg-black/5">Edytor tras</a>
+            <a href="#moderation-queue" className="rounded-full border border-[var(--line)] bg-white px-3 py-1.5 hover:bg-black/5">Moderacja</a>
+            <a href="#photo-stories-admin" className="rounded-full border border-[var(--line)] bg-white px-3 py-1.5 hover:bg-black/5">Photo Stories</a>
+            <a href="#saved-routes" className="rounded-full border border-[var(--line)] bg-white px-3 py-1.5 hover:bg-black/5">Opublikowane trasy</a>
+          </nav>
 
           <div className="mt-6 rounded-2xl border border-[var(--line)] bg-white/85 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1114,6 +1232,12 @@ export default function AdminPage() {
               </div>
             )}
           </div>
+
+          {editingRouteId && (
+            <div className="mt-6 rounded-xl border border-sky-300 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+              Edytujesz wybraną trasę. Po zapisaniu zmiany zostaną od razu opublikowane na stronie.
+            </div>
+          )}
 
           <form onSubmit={onSubmit} className="mt-6 grid gap-3 md:grid-cols-2">
             <label className="grid gap-1 text-sm md:col-span-2">
@@ -1360,13 +1484,13 @@ export default function AdminPage() {
               <span className="font-semibold">Upload zdjęć (bezpiecznie do Blob)</span>
               <input
                 type="file"
+                multiple
                 accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.avif,.heic,.heif"
                 onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (!file) {
+                  if (!event.target.files || event.target.files.length === 0) {
                     return;
                   }
-                  void uploadMedia(file, "photo");
+                  void uploadRoutePhotos(event.target.files);
                   event.currentTarget.value = "";
                 }}
                 className="rounded-xl border border-[var(--line)] bg-white px-3 py-2"
@@ -1392,18 +1516,20 @@ export default function AdminPage() {
                 disabled={isSaveDisabled}
                 className="rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Zapisz trasę
+                {editingRouteId ? "Zapisz zmiany trasy" : "Zapisz trasę"}
               </button>
+              {editingRouteId && (
+                <button
+                  type="button"
+                  onClick={resetRouteForm}
+                  className="rounded-xl border border-[var(--line)] bg-white px-5 py-3 text-sm font-bold"
+                >
+                  Anuluj edycję
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => {
-                  setForm(initialState);
-                  setVerificationChecklist(initialVerificationChecklist);
-                  setImportedFromStrava(false);
-                  setImportedSurfaceEstimate(null);
-                  setStatusMessage("");
-                  setStatus("idle");
-                }}
+                onClick={resetRouteForm}
                 className="rounded-xl border border-[var(--line)] bg-white px-5 py-3 text-sm font-bold"
               >
                 Wyczyść formularz
@@ -1443,7 +1569,7 @@ export default function AdminPage() {
           )}
         </section>
 
-        <section className="rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-6 shadow-[0_10px_34px_rgba(16,32,22,.1)] md:p-8">
+        <section id="moderation-queue" className="rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-6 shadow-[0_10px_34px_rgba(16,32,22,.1)] md:p-8">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-2xl font-bold">Kolejka moderacji</h2>
             <button
@@ -1501,7 +1627,7 @@ export default function AdminPage() {
           )}
         </section>
 
-        <section className="rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-6 shadow-[0_10px_34px_rgba(16,32,22,.1)] md:p-8">
+        <section id="photo-stories-admin" className="rounded-3xl border border-[var(--line)] bg-[var(--paper)] p-6 shadow-[0_10px_34px_rgba(16,32,22,.1)] md:p-8">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-2xl font-bold">Photo Stories</h2>
             <div className="flex gap-2">
@@ -1517,18 +1643,14 @@ export default function AdminPage() {
                 onClick={() => void savePhotoStoriesList(photoStories)}
                 className="rounded-xl bg-[var(--accent)] px-3 py-2 text-sm font-semibold text-white hover:brightness-95"
               >
-                Zapisz kolejność i opisy
+                Zapisz historie
               </button>
             </div>
           </div>
 
           <p className="mb-4 text-sm text-[var(--muted)]">
-            Możesz przesłać wiele zdjęć naraz, a potem edytować tytuł, tag i opis każdej historii.
+            Każda historia ma jeden długi tekst artykułu i kilka zdjęć w galerii. Nie dodajemy oddzielnych opisów do pojedynczych zdjęć.
           </p>
-
-          <div className="mb-4 rounded-xl border border-[var(--line)] bg-white/80 px-3 py-2 text-xs text-[var(--muted)]">
-            Wzór: <strong>co się dzieje</strong> + <strong>w którym momencie trasy</strong> + <strong>praktyczna wskazówka</strong>.
-          </div>
 
           <div className="grid gap-3 rounded-2xl border border-[var(--line)] bg-white/80 p-4 md:grid-cols-2">
             <label className="grid gap-1 text-sm md:col-span-2">
@@ -1567,12 +1689,12 @@ export default function AdminPage() {
               />
             </label>
             <label className="grid gap-1 text-sm md:col-span-2">
-              <span className="font-semibold">Opis dla nowych zdjęć</span>
+              <span className="font-semibold">Treść artykułu (jeden długi tekst)</span>
               <textarea
-                value={photoStoryForm.text}
-                onChange={(event) => setPhotoStoryForm((prev) => ({ ...prev, text: event.target.value }))}
-                className="min-h-20 rounded-xl border border-[var(--line)] bg-white px-3 py-2"
-                placeholder="Np. Po około 45 minutach warto zrobić 10-minutową pauzę przy lesie. Krótki postój zwykle poprawia koncentrację dzieci na kolejnym odcinku."
+                value={photoStoryForm.body}
+                onChange={(event) => setPhotoStoryForm((prev) => ({ ...prev, body: event.target.value }))}
+                className="min-h-40 rounded-xl border border-[var(--line)] bg-white px-3 py-2"
+                placeholder="Napisz pełną historię. Użyj pustej linii między akapitami (min. 40 znaków)."
               />
             </label>
           </div>
@@ -1622,12 +1744,6 @@ export default function AdminPage() {
                         className="rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
                         placeholder="Tag 1-2 słowa"
                       />
-                      <textarea
-                        value={story.text}
-                        onChange={(event) => updatePhotoStory(story.id, { text: event.target.value })}
-                        className="min-h-20 rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
-                        placeholder="Opis: kontekst + wskazówka praktyczna"
-                      />
                       <input
                         value={story.src}
                         onChange={(event) => updatePhotoStory(story.id, { src: event.target.value })}
@@ -1635,11 +1751,11 @@ export default function AdminPage() {
                         placeholder="URL zdjęcia okładkowego"
                       />
                       <label className="grid gap-1 text-xs">
-                        <span className="font-semibold">Treść artykułu (opcjonalnie, akapity oddziel pustą linią)</span>
+                        <span className="font-semibold">Treść artykułu (akapity oddziel pustą linią)</span>
                         <textarea
                           value={story.body ?? ""}
                           onChange={(event) => updatePhotoStory(story.id, { body: event.target.value })}
-                          className="min-h-32 rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
+                          className="min-h-44 rounded-lg border border-[var(--line)] px-3 py-2 text-sm"
                           placeholder="Pełny opis historii widoczny na stronie artykułu."
                         />
                       </label>
@@ -1656,10 +1772,10 @@ export default function AdminPage() {
                                   <img src={photo.src} alt="" className="h-full w-full object-cover" loading="lazy" />
                                 </div>
                                 <input
-                                  value={photo.caption ?? ""}
-                                  onChange={(event) => updateStoryGalleryPhoto(story.id, photoIndex, { caption: event.target.value })}
+                                  value={photo.src}
+                                  onChange={(event) => updateStoryGalleryPhoto(story.id, photoIndex, { src: event.target.value })}
                                   className="min-w-0 rounded-lg border border-[var(--line)] px-2 py-1.5 text-xs"
-                                  placeholder="Podpis zdjęcia (opcjonalnie)"
+                                  placeholder="URL zdjęcia galerii"
                                 />
                                 <button
                                   type="button"
@@ -1742,13 +1858,22 @@ export default function AdminPage() {
                         {route.region} | {route.distanceKm} km | ocena {route.rating}/5
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeRoute(route.id)}
-                      className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs font-semibold"
-                    >
-                      Usuń
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fillFormFromRoute(route)}
+                        className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs font-semibold"
+                      >
+                        Edytuj
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeRoute(route.id)}
+                        className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs font-semibold"
+                      >
+                        Usuń
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}

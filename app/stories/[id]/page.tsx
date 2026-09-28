@@ -27,8 +27,7 @@ function storyGallery(story: PhotoStory): GalleryPhoto[] {
     { src: story.src, alt: story.title },
     ...(story.photos ?? []).map((photo, index) => ({
       src: photo.src,
-      alt: photo.caption ?? `${story.title}: zdjęcie ${index + 2}`,
-      caption: photo.caption,
+      alt: `${story.title}: zdjęcie ${index + 2}`,
     })),
   ];
 }
@@ -43,8 +42,8 @@ export async function generateMetadata({ params }: StoryPageProps): Promise<Meta
 
   return {
     title: story.title,
-    description: story.text,
-    openGraph: { title: story.title, description: story.text, images: [{ url: story.src }] },
+    description: story.body ?? story.text,
+    openGraph: { title: story.title, description: story.body ?? story.text, images: [{ url: story.src }] },
   };
 }
 
@@ -57,7 +56,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
     notFound();
   }
 
-  const paragraphs = (story.body ?? "")
+  const paragraphs = (story.body ?? story.text)
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter((paragraph) => paragraph.length > 0);
@@ -80,7 +79,6 @@ export default async function StoryPage({ params }: StoryPageProps) {
               {story.tag}
             </p>
             <h1 className="mt-4 text-4xl leading-[1.05] font-extrabold [text-wrap:balance] md:text-6xl">{story.title}</h1>
-            <p className="mt-5 text-lg leading-relaxed text-[var(--muted)] md:text-xl">{story.text}</p>
           </header>
 
           <section className="mt-10" aria-label="Galeria zdjęć">

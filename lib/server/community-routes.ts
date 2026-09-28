@@ -146,11 +146,12 @@ async function readJsonByPrefix<T>(prefix: string): Promise<T[]> {
   return readJsonFromLocalPrefix<T>(prefix);
 }
 
-function draftToRoute(draft: RouteDraft, routeId: string, reviewedAt: string): Route {
+function draftToRoute(draft: RouteDraft, routeId: string, reviewedAt: string, createdAt?: string): Route {
   const asphaltPct = Math.max(0, Math.min(100, draft.asphaltPct));
 
   return {
     id: routeId,
+    createdAt: createdAt ?? reviewedAt,
     name: draft.name,
     region: draft.region,
     distanceKm: draft.distanceKm,
@@ -321,6 +322,36 @@ export async function createPublishedRouteFromDraft(args: {
   return route;
 }
 
+export async function updatePublishedRouteFromDraft(args: {
+  routeId: string;
+  draft: RouteDraft;
+  verificationLevel: Route["verification"]["level"];
+  reviewedBy?: string;
+  note?: string;
+}): Promise<Route | null> {
+  const existing = await getPublishedRouteById(args.routeId);
+  if (!existing) {
+    return null;
+  }
+
+  const reviewedAt = new Date().toISOString();
+  const route = draftToRoute(args.draft, args.routeId, reviewedAt, existing.createdAt);
+
+  route.verification = routeVerificationFromDraft({
+    level: args.verificationLevel,
+    gpxUrl: args.draft.gpxUrl,
+    reviewedAt,
+    note: args.note,
+  });
+
+  if (args.reviewedBy && args.reviewedBy.trim().length > 0) {
+    route.verification.note = `${route.verification.note} (${args.reviewedBy.trim()})`;
+  }
+
+  await saveJson(publishedRouteBlobPath(args.routeId), route);
+  return route;
+}
+
 export async function rejectSubmission(args: {
   id: string;
   reviewedBy?: string;
@@ -347,7 +378,11 @@ export async function rejectSubmission(args: {
 
 export async function listPublishedRoutes(): Promise<Route[]> {
   const routes = await readJsonByPrefix<Route>(PUBLISHED_ROUTES_BLOB_PREFIX);
-  return routes.sort((a, b) => b.verification.updatedAt.localeCompare(a.verification.updatedAt));
+  return routes.sort((a, b) => {
+    const aAddedAt = a.createdAt ?? `${a.verification.updatedAt}T00:00:00.000Z`;
+    const bAddedAt = b.createdAt ?? `${b.verification.updatedAt}T00:00:00.000Z`;
+    return bAddedAt.localeCompare(aAddedAt);
+  });
 }
 
 export async function getPublishedRouteById(routeId: string): Promise<Route | null> {

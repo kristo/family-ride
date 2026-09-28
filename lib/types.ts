@@ -21,6 +21,7 @@ export type RouteSurfaceEstimate = {
 
 export type Route = {
   id: string;
+  createdAt?: string;
   name: string;
   region: string;
   distanceKm: number;
@@ -98,7 +99,6 @@ export type RouteSubmission = {
 
 export type PhotoStoryPhoto = {
   src: string;
-  caption?: string;
 };
 
 export type PhotoStory = {
@@ -106,10 +106,10 @@ export type PhotoStory = {
   /** Zdjęcie okładkowe (karta na stronie głównej i początek galerii). */
   src: string;
   title: string;
-  /** Krótki opis na karcie; w artykule pełni rolę wstępu. */
+  /** Krótki opis na karcie (automatycznie wyliczany z body, gdy pusty). */
   text: string;
   tag: string;
-  /** Treść artykułu, akapity oddzielone pustą linią. */
+  /** Główna treść artykułu, akapity oddzielone pustą linią. */
   body?: string;
   /** Dodatkowe zdjęcia galerii artykułu (poza okładką). */
   photos?: PhotoStoryPhoto[];
