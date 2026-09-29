@@ -42,7 +42,13 @@ async function readSubscribers(): Promise<NewsletterSubscriber[]> {
         return [];
       }
 
-      const response = await fetch(blob.url, { cache: "no-store" });
+      // The Blob CDN caches this fixed URL for a month by default and ignores our
+      // request-side no-store, so a fresh write can keep serving the old subscriber
+      // list for up to a month. Busting with the blob's own uploadedAt (see
+      // lib/server/photo-stories.ts for the same fix) gives every save a fresh
+      // cache key while repeat reads of the same version still hit the cache.
+      const cacheBustedUrl = `${blob.url}?v=${new Date(blob.uploadedAt).getTime()}`;
+      const response = await fetch(cacheBustedUrl, { cache: "no-store" });
       if (!response.ok) {
         return [];
       }
@@ -81,8 +87,12 @@ async function writeSubscribers(subscribers: NewsletterSubscriber[]): Promise<vo
 
     await put(NEWSLETTER_BLOB_PATH, payload, {
       access: "public",
+      allowOverwrite: true,
       addRandomSuffix: false,
       contentType: "application/json",
+      // Defaults to a month; we also cache-bust reads by uploadedAt above, but keep this
+      // short too so a direct hit of blob.url (without the query param) can't stay stale.
+      cacheControlMaxAge: 60,
       token,
     });
     return;

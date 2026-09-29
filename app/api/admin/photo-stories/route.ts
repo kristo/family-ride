@@ -19,7 +19,8 @@ export async function POST(request: Request) {
 
     const stories = await savePhotoStories(payload.stories);
     return NextResponse.json({ success: true, stories });
-  } catch {
+  } catch (error) {
+    console.error("Photo Stories save failed:", error);
     return NextResponse.json({ error: "Nie udało się zapisać Photo Stories." }, { status: 500 });
   }
 }

@@ -29,6 +29,7 @@ export type Route = {
   minAge: number;
   asphaltPct: number;
   gravelPct: number;
+  /** Ocena edytorska (ręczna). Wyświetlana, dopóki trasa nie ma zatwierdzonych recenzji gości. */
   rating: number;
   description: string;
   hardestPart: string;
@@ -50,6 +51,12 @@ export type Route = {
     alt: string;
     caption: string;
   }[];
+  /**
+   * Liczona w locie z zatwierdzonych recenzji, nigdy nie zapisywana. Gdy > 0, `rating`
+   * powyżej jest już podmieniony na średnią z recenzji (patrz app/page.tsx i
+   * app/routes/[id]/page.tsx).
+   */
+  reviewCount?: number;
 };
 
 export type RouteSubmissionStatus = "pending" | "approved" | "rejected";
@@ -99,6 +106,7 @@ export type RouteSubmission = {
 
 export type PhotoStoryPhoto = {
   src: string;
+  caption?: string;
 };
 
 export type PhotoStory = {
@@ -113,4 +121,28 @@ export type PhotoStory = {
   body?: string;
   /** Dodatkowe zdjęcia galerii artykułu (poza okładką). */
   photos?: PhotoStoryPhoto[];
+};
+
+export type RouteReviewStatus = "pending" | "approved" | "rejected";
+
+export type RouteReview = {
+  id: string;
+  routeId: string;
+  /** Zdenormalizowane, żeby lista w adminie nie musiała dociągać trasy po id. */
+  routeName: string;
+  status: RouteReviewStatus;
+  /** Liczba całkowita 1-5. */
+  rating: number;
+  comment?: string;
+  authorName?: string;
+  createdAt: string;
+  updatedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+};
+
+export type RouteReviewSummary = {
+  /** Zaokrąglona do 1 miejsca po przecinku. */
+  average: number;
+  count: number;
 };

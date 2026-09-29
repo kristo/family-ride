@@ -1,6 +1,4 @@
-import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { del, list, put } from "@vercel/blob";
+import { makeJsonBlobStore } from "@/lib/server/json-blob-store";
 import type { Route, RouteDraft, RouteSubmission, RouteSubmissionStatus } from "@/lib/types";
 
 const SUBMISSION_STATUSES: RouteSubmissionStatus[] = ["pending", "approved", "rejected"];
@@ -8,15 +6,7 @@ const SUBMISSION_STATUSES: RouteSubmissionStatus[] = ["pending", "approved", "re
 const SUBMISSIONS_BLOB_PREFIX = "community/submissions";
 const PUBLISHED_ROUTES_BLOB_PREFIX = "community/routes/published";
 
-const LOCAL_ROOT_DIR = path.join(process.cwd(), ".data", "community");
-function getBlobToken(): string | null {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  return token && token.trim().length > 0 ? token : null;
-}
-
-function isBlobEnabled(): boolean {
-  return Boolean(getBlobToken());
-}
+const { saveJson, deleteJson, readJsonByPrefix } = makeJsonBlobStore("community");
 
 function toSlug(value: string): string {
   return value
@@ -44,106 +34,6 @@ function submissionBlobPath(status: RouteSubmissionStatus, id: string): string {
 
 function publishedRouteBlobPath(routeId: string): string {
   return `${PUBLISHED_ROUTES_BLOB_PREFIX}/${routeId}.json`;
-}
-
-async function saveJson(pathname: string, payload: unknown) {
-  const content = JSON.stringify(payload, null, 2);
-
-  if (isBlobEnabled()) {
-    const token = getBlobToken();
-    if (!token) {
-      throw new Error("BLOB_READ_WRITE_TOKEN is missing.");
-    }
-
-    await put(pathname, content, {
-      access: "public",
-      addRandomSuffix: false,
-      contentType: "application/json",
-      token,
-    });
-    return;
-  }
-
-  const absolutePath = path.join(LOCAL_ROOT_DIR, pathname);
-  await mkdir(path.dirname(absolutePath), { recursive: true });
-  await writeFile(absolutePath, content, "utf-8");
-}
-
-async function deleteJson(pathname: string) {
-  if (isBlobEnabled()) {
-    const token = getBlobToken();
-    if (!token) {
-      return;
-    }
-
-    try {
-      await del(pathname, { token });
-    } catch {
-      // Ignore deletes for missing blobs.
-    }
-    return;
-  }
-
-  const absolutePath = path.join(LOCAL_ROOT_DIR, pathname);
-  try {
-    await rm(absolutePath);
-  } catch {
-    // Ignore deletes for missing files.
-  }
-}
-
-async function readJsonFromBlobPrefix<T>(prefix: string): Promise<T[]> {
-  const token = getBlobToken();
-  if (!token) {
-    return [];
-  }
-
-  try {
-    const response = await list({ token, prefix, limit: 1000 });
-
-    const values = await Promise.all(
-      response.blobs
-        .filter((blob) => blob.pathname.toLowerCase().endsWith(".json"))
-        .map(async (blob) => {
-          const fetchResponse = await fetch(blob.url, { cache: "no-store" });
-          if (!fetchResponse.ok) {
-            return null;
-          }
-          return (await fetchResponse.json()) as T;
-        })
-    );
-
-    return values.filter((item) => item !== null) as T[];
-  } catch {
-    return [];
-  }
-}
-
-async function readJsonFromLocalPrefix<T>(prefix: string): Promise<T[]> {
-  const absolutePrefix = path.join(LOCAL_ROOT_DIR, prefix);
-
-  try {
-    const entries = await readdir(absolutePrefix, { withFileTypes: true });
-    const files = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".json"));
-
-    const values = await Promise.all(
-      files.map(async (entry) => {
-        const content = await readFile(path.join(absolutePrefix, entry.name), "utf-8");
-        return JSON.parse(content) as T;
-      })
-    );
-
-    return values;
-  } catch {
-    return [];
-  }
-}
-
-async function readJsonByPrefix<T>(prefix: string): Promise<T[]> {
-  if (isBlobEnabled()) {
-    return readJsonFromBlobPrefix<T>(prefix);
-  }
-  return readJsonFromLocalPrefix<T>(prefix);
 }
 
 function draftToRoute(draft: RouteDraft, routeId: string, reviewedAt: string, createdAt?: string): Route {

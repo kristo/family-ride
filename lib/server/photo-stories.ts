@@ -38,7 +38,8 @@ function normalizePhotos(photos: unknown): PhotoStoryPhoto[] {
     if (!src) {
       continue;
     }
-    result.push({ src });
+    const caption = typeof photo?.caption === "string" ? photo.caption.trim() : "";
+    result.push(caption ? { src, caption } : { src });
   }
   return result;
 }
@@ -93,7 +94,13 @@ export async function listPhotoStories(): Promise<PhotoStory[]> {
         return [];
       }
 
-      const response = await fetch(blob.url, {
+      // The Blob CDN caches this fixed URL for a month by default (see cacheControlMaxAge
+      // on the put() call below) and ignores our request-side no-store: after saving, both
+      // the admin panel and the public site could keep serving the previous JSON for up to
+      // a month. Busting with the blob's own uploadedAt gives every new save a fresh cache
+      // key while still letting repeated reads of the same version hit the cache.
+      const cacheBustedUrl = `${blob.url}?v=${new Date(blob.uploadedAt).getTime()}`;
+      const response = await fetch(cacheBustedUrl, {
         cache: "no-store",
       });
 
@@ -132,8 +139,12 @@ export async function savePhotoStories(stories: PhotoStory[]): Promise<PhotoStor
 
     await put(PHOTO_STORIES_BLOB_PATH, JSON.stringify(payload, null, 2), {
       access: "public",
+      allowOverwrite: true,
       addRandomSuffix: false,
       contentType: "application/json",
+      // Defaults to a month; we also cache-bust reads by uploadedAt above, but keep this
+      // short too so a direct hit of blob.url (without the query param) can't stay stale.
+      cacheControlMaxAge: 60,
       token,
     });
 

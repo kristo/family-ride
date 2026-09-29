@@ -82,10 +82,11 @@ export function RouteCard({ route, isCompared, compareDisabled, onToggleCompare 
           </h3>
           <p
             className="flex shrink-0 items-center gap-1 rounded-full bg-[var(--ember-soft)] px-2.5 py-1 text-sm font-bold text-[var(--accent-text)]"
-            aria-label={`Ocena ${route.rating} na 5`}
+            aria-label={`Ocena ${route.rating} na 5${route.reviewCount ? `, ${route.reviewCount} opinii gości` : ""}`}
           >
             <StarIcon className="h-3.5 w-3.5" />
             {route.rating}
+            {route.reviewCount ? <span className="font-semibold opacity-70">({route.reviewCount})</span> : null}
           </p>
         </div>
 

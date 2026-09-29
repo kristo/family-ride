@@ -27,7 +27,8 @@ function storyGallery(story: PhotoStory): GalleryPhoto[] {
     { src: story.src, alt: story.title },
     ...(story.photos ?? []).map((photo, index) => ({
       src: photo.src,
-      alt: `${story.title}: zdjęcie ${index + 2}`,
+      alt: photo.caption ?? `${story.title}: zdjęcie ${index + 2}`,
+      caption: photo.caption,
     })),
   ];
 }

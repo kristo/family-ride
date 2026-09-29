@@ -14,7 +14,7 @@ import { PhotoCredit } from "@/components/ui/PhotoCredit";
 import { Reveal } from "@/components/ui/Reveal";
 import { defaultPhotoStories } from "@/lib/default-photo-stories";
 import { trackNewsletterSignup } from "@/lib/marketing-events";
-import type { PhotoStory, Route } from "@/lib/types";
+import type { PhotoStory, Route, RouteReviewSummary } from "@/lib/types";
 
 const ageOptions = [6, 7, 8, 9, 10, 12];
 const ratingOptions = [3.5, 4, 4.3, 4.6];
@@ -55,6 +55,7 @@ function HomeContent() {
   const searchParams = useSearchParams();
 
   const [communityRoutes, setCommunityRoutes] = useState<Route[]>([]);
+  const [reviewSummaries, setReviewSummaries] = useState<Record<string, RouteReviewSummary>>({});
   const [photoStories, setPhotoStories] = useState<PhotoStory[]>(defaultPhotoStories);
   const [email, setEmail] = useState<string>("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "saving" | "ok" | "invalid" | "exists" | "error">("idle");
@@ -84,6 +85,37 @@ function HomeContent() {
     };
 
     void loadCommunityRoutes();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadReviewSummaries = async () => {
+      try {
+        const response = await fetch("/api/community/reviews/summary", {
+          method: "GET",
+          signal: controller.signal,
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as { summaries?: Record<string, RouteReviewSummary> };
+        if (payload.summaries) {
+          setReviewSummaries(payload.summaries);
+        }
+      } catch {
+        // Bez opinii gości trasy po prostu pokazują ręcznie ustawioną ocenę.
+      }
+    };
+
+    void loadReviewSummaries();
 
     return () => {
       controller.abort();
@@ -135,8 +167,17 @@ function HomeContent() {
     .slice(0, MAX_COMPARE);
 
   const routes = useMemo(() => {
-    return [...communityRoutes];
-  }, [communityRoutes]);
+    // Gdy trasa ma choć jedną zatwierdzoną opinię gościa, jej średnia zastępuje ręcznie
+    // ustawioną ocenę wszędzie dalej (filtr, sortowanie, karta, porównywarka) - to jedyne
+    // miejsce, w którym trzeba to obsłużyć.
+    return communityRoutes.map((route) => {
+      const summary = reviewSummaries[route.id];
+      if (!summary || summary.count === 0) {
+        return route;
+      }
+      return { ...route, rating: summary.average, reviewCount: summary.count };
+    });
+  }, [communityRoutes, reviewSummaries]);
 
   const setQueryParams = (changes: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());

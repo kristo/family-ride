@@ -4,9 +4,11 @@ import Link from "next/link";
 import { GpxMap } from "@/components/maps/GpxMap";
 import { Gallery } from "@/components/ui/Gallery";
 import { RouteVerificationBadge } from "@/components/ui/RouteVerificationBadge";
+import { RouteReviews } from "@/components/marketing/RouteReviews";
 import { getRouteDifficultyLevel } from "@/lib/route-difficulty";
 import { gpxQualityLabel } from "@/lib/route-verification";
 import { getPublishedRouteById, getPublishedRouteIds } from "@/lib/server/community-routes";
+import { getApprovedReviewsForRoute } from "@/lib/server/route-reviews";
 import { notFound } from "next/navigation";
 import { getAllRouteIds, getRouteById } from "@/lib/routes";
 
@@ -97,6 +99,13 @@ export default async function RoutePage({ params }: RoutePageProps) {
     notFound();
   }
 
+  const approvedReviews = await getApprovedReviewsForRoute(route.id);
+  const reviewsAverage =
+    approvedReviews.length > 0
+      ? Math.round((approvedReviews.reduce((sum, review) => sum + review.rating, 0) / approvedReviews.length) * 10) / 10
+      : null;
+  const displayedRating = reviewsAverage ?? route.rating;
+
   return (
     <div className="paper-grid relative isolate min-h-screen overflow-hidden bg-[var(--sand)] text-[var(--ink)]">
       <div className="pointer-events-none absolute inset-x-0 -top-40 h-[24rem] [mask-image:linear-gradient(to_bottom,black_40%,transparent)] bg-[radial-gradient(circle_at_20%_20%,rgba(240,90,36,.28),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(0,95,115,.30),transparent_50%)]" />
@@ -146,7 +155,9 @@ export default async function RoutePage({ params }: RoutePageProps) {
             </div>
             <div className="rounded-lg bg-white/70 px-3 py-2">
               <p className="text-xs text-[var(--muted)]">Ocena</p>
-              <p className="font-bold">{route.rating} / 5</p>
+              <p className="font-bold">
+                {displayedRating} / 5{approvedReviews.length > 0 ? ` (${approvedReviews.length})` : ""}
+              </p>
             </div>
           </div>
 
@@ -296,6 +307,8 @@ export default async function RoutePage({ params }: RoutePageProps) {
             </article>
           </aside>
         </section>
+
+        <RouteReviews routeId={route.id} routeName={route.name} initialReviews={approvedReviews} />
       </main>
     </div>
   );
