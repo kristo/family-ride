@@ -242,6 +242,7 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
       const payload = (await response.json()) as {
         error?: string;
         file?: { url?: string; name?: string };
+        mapEmbedUrl?: string | null;
       };
 
       if (!response.ok || !payload.file?.url) {
@@ -253,6 +254,7 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
       setForm((prev) => ({
         ...prev,
         gpxUrl: payload.file?.url ?? prev.gpxUrl,
+        mapEmbedUrl: payload.mapEmbedUrl ?? prev.mapEmbedUrl,
       }));
       setImportedFromStrava(false);
       setImportedSurfaceEstimate(null);

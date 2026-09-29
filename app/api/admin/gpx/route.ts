@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { buildOsmEmbedUrl, extractLatLngFromGpxText } from "@/lib/server/gpx-bbox";
 import { listGpxFiles, saveGpxFile } from "@/lib/server/gpx-storage";
 
 export const runtime = "nodejs";
@@ -64,6 +65,8 @@ export async function POST(request: Request) {
       contentType: file.type || "application/gpx+xml",
     });
 
+    const mapEmbedUrl = buildOsmEmbedUrl(extractLatLngFromGpxText(content));
+
     return NextResponse.json({
       success: true,
       file: {
@@ -71,6 +74,7 @@ export async function POST(request: Request) {
         url: saved.url,
         sizeBytes: saved.sizeBytes,
       },
+      mapEmbedUrl,
     });
   } catch {
     return NextResponse.json({ error: "Nie udało się zapisac pliku GPX." }, { status: 500 });

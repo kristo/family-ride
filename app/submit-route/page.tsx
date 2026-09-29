@@ -202,14 +202,22 @@ export default function SubmitRoutePage() {
         const body = new FormData();
         body.append("file", file);
         const response = await fetch("/api/admin/gpx", { method: "POST", body });
-        const payload = (await response.json()) as { error?: string; file?: { url?: string; name?: string } };
+        const payload = (await response.json()) as {
+          error?: string;
+          file?: { url?: string; name?: string };
+          mapEmbedUrl?: string | null;
+        };
 
         if (!response.ok || !payload.file?.url) {
           setMediaMessage(payload.error ?? "Upload GPX nie powiódł się.");
           return;
         }
 
-        setForm((prev) => ({ ...prev, gpxUrl: payload.file?.url ?? prev.gpxUrl }));
+        setForm((prev) => ({
+          ...prev,
+          gpxUrl: payload.file?.url ?? prev.gpxUrl,
+          mapEmbedUrl: payload.mapEmbedUrl ?? prev.mapEmbedUrl,
+        }));
         setMediaMessage(`Dodano GPX: ${payload.file.name ?? "plik"}`);
         return;
       }

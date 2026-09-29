@@ -166,6 +166,7 @@ export function StravaImportPanel({
         file?: { url?: string; name?: string };
         metrics?: { distanceKm?: number; elevationM?: number };
         surface?: RouteSurfaceEstimate | null;
+        mapEmbedUrl?: string | null;
       };
 
       if (!response.ok || !payload.file?.url) {
@@ -178,6 +179,7 @@ export function StravaImportPanel({
         name: prev.name.trim().length > 0 ? prev.name : (payload.activity?.name ?? prev.name),
         stravaUrl: prev.stravaUrl.trim(),
         gpxUrl: payload.file?.url ?? prev.gpxUrl,
+        mapEmbedUrl: payload.mapEmbedUrl ?? prev.mapEmbedUrl,
         asphaltPct:
           typeof payload.surface?.asphaltPct === "number"
             ? String(payload.surface.asphaltPct)

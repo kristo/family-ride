@@ -8,6 +8,7 @@ import {
   saveActivityAsGpx,
   setStravaAuthCookieHeader,
 } from "@/lib/server/strava";
+import { buildOsmEmbedUrl } from "@/lib/server/gpx-bbox";
 import { estimateSurfaceBreakdown } from "@/lib/server/surface-estimation";
 
 export const runtime = "nodejs";
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
     const metrics = calculateTrackMetrics(points, streams.altitude?.data);
     const fallbackElevation = Math.round(activity?.total_elevation_gain ?? 0);
     const surface = await estimateSurfaceBreakdown(points);
+    const mapEmbedUrl = buildOsmEmbedUrl(points);
 
     const response = NextResponse.json({
       success: true,
@@ -75,6 +77,7 @@ export async function POST(request: Request) {
         elevationM: metrics.elevationGainM > 0 ? metrics.elevationGainM : fallbackElevation,
       },
       surface,
+      mapEmbedUrl,
     });
 
     if (refreshed) {
