@@ -67,6 +67,7 @@ function normalizeStory(story: Partial<PhotoStory>, index: number): PhotoStory |
     tag,
     ...(body ? { body } : {}),
     ...(photos.length > 0 ? { photos } : {}),
+    ...(story.hidden === true ? { hidden: true } : {}),
   };
 }
 

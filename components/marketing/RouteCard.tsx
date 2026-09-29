@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { GpxMap } from "@/components/maps/GpxMap";
 import { ArrowRightIcon, CheckIcon, ChildIcon, DownloadIcon, PlusIcon, RoadIcon, RouteIcon, StarIcon } from "@/components/ui/Icons";
 import { RouteVerificationBadge } from "@/components/ui/RouteVerificationBadge";
 import { gpxQualityLabel } from "@/lib/route-verification";
@@ -96,12 +97,12 @@ export function RouteCard({ route, isCompared, compareDisabled, onToggleCompare 
           <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--paper)]">
             <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Podgląd mapy</div>
             <div className="aspect-[16/7] border-t border-[var(--line)]">
-              <iframe
-                title={`Mapa trasy ${route.name}`}
-                src={route.mapEmbedUrl}
-                loading="lazy"
+              <GpxMap
+                gpxUrl={route.gpxUrl}
+                mapEmbedUrl={route.mapEmbedUrl}
+                distanceKm={route.distanceKm}
+                elevationM={route.elevationM}
                 className="h-full w-full"
-                referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
           </div>

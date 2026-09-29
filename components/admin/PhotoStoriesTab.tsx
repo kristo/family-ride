@@ -28,6 +28,9 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
   const [photoStoryForm, setPhotoStoryForm] = useState<PhotoStoryForm>(initialPhotoStoryForm);
   const [photoStoriesUploadStatus, setPhotoStoriesUploadStatus] = useState<"idle" | "uploading" | "ok" | "error">("idle");
   const [photoStoriesUploadMessage, setPhotoStoriesUploadMessage] = useState<string>("");
+  // Zdjęcia już wgrane na Blob, czekające na wybór okładki, zanim historia zostanie utworzona.
+  const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
+  const [pendingCoverIndex, setPendingCoverIndex] = useState<number>(0);
 
   const loadPhotoStories = async () => {
     setPhotoStoriesLoading(true);
@@ -132,7 +135,24 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
       }
     }
 
-    const [coverUrl, ...galleryUrls] = uploadedUrls;
+    // Nie tworzymy jeszcze historii - najpierw admin wybiera, które z wgranych zdjęć
+    // ma być okładką (patrz createPendingStory niżej).
+    setPendingPhotos(uploadedUrls);
+    setPendingCoverIndex(0);
+    setPhotoStoriesUploadStatus("ok");
+    setPhotoStoriesUploadMessage(
+      `Wgrano ${uploadedUrls.length} ${uploadedUrls.length === 1 ? "zdjęcie" : "zdjęć"}. Wybierz okładkę poniżej i kliknij "Utwórz historię".`
+    );
+  };
+
+  const createPendingStory = async () => {
+    if (pendingPhotos.length === 0) {
+      return;
+    }
+
+    const coverUrl = pendingPhotos[pendingCoverIndex] ?? pendingPhotos[0];
+    const galleryUrls = pendingPhotos.filter((_, index) => index !== pendingCoverIndex);
+
     const newStory: PhotoStory = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       src: coverUrl,
@@ -147,11 +167,20 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
     setPhotoStories(nextStories);
     await savePhotoStoriesList(nextStories);
 
-    setPhotoStoriesUploadStatus("ok");
-    setPhotoStoriesUploadMessage(
-      `Dodano nową historię z ${uploadedUrls.length} ${uploadedUrls.length === 1 ? "zdjęciem" : "zdjęciami"}.`
-    );
+    setPendingPhotos([]);
+    setPendingCoverIndex(0);
+    setPhotoStoriesUploadStatus("idle");
+    setPhotoStoriesUploadMessage("");
     setPhotoStoryForm(initialPhotoStoryForm);
+  };
+
+  const cancelPendingPhotos = () => {
+    // Same pliki zostają na Blob (nieużywane), ale to spójne z resztą panelu - nic
+    // tu nie sprząta po sobie odrzuconych uploadów.
+    setPendingPhotos([]);
+    setPendingCoverIndex(0);
+    setPhotoStoriesUploadStatus("idle");
+    setPhotoStoriesUploadMessage("");
   };
 
   const uploadStoryGalleryImages = async (storyId: string, files: FileList) => {
@@ -219,6 +248,26 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
     setPhotoStories((prev) => prev.map((story) => (story.id === id ? { ...story, ...changes } : story)));
   };
 
+  const toggleStoryHidden = (id: string) => {
+    setPhotoStories((prev) => prev.map((story) => (story.id === id ? { ...story, hidden: !story.hidden } : story)));
+  };
+
+  // Kolejność w tej tablicy to jedyne źródło kolejności na stronie głównej - zamiana miejscami
+  // dwóch sąsiednich historii. Tak jak inne pola edycji, wymaga kliknięcia "Zapisz historie".
+  const moveStory = (index: number, direction: -1 | 1) => {
+    const targetIndex = index + direction;
+
+    setPhotoStories((prev) => {
+      if (targetIndex < 0 || targetIndex >= prev.length) {
+        return prev;
+      }
+
+      const next = [...prev];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+  };
+
   const removePhotoStory = (id: string) => {
     const nextStories = photoStories.filter((story) => story.id !== id);
     setPhotoStories(nextStories);
@@ -253,7 +302,9 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
 
       <p className="mb-4 text-sm text-[var(--muted)]">
         Każda historia ma jeden długi tekst artykułu i galerię zdjęć. Każde zdjęcie w galerii może mieć swój podpis.
-        Usuwanie zapisuje się od razu, edycja tekstu wymaga kliknięcia &quot;Zapisz historie&quot;.
+        Na stronie głównej pokazuje się tylko pierwsze 5 widocznych historii (1 wyróżniona + 4 obok) - kolejność
+        na liście niżej decyduje, które to będą. Strzałki i ukrywanie zapisują się po kliknięciu
+        &quot;Zapisz historie&quot;, tak jak edycja tekstu; usuwanie zapisuje się od razu.
       </p>
 
       <div className="grid gap-3 rounded-2xl border border-[var(--line)] bg-white/80 p-4 md:grid-cols-2">
@@ -278,12 +329,13 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Nowa historia: dodaj zdjęcia</span>
           <span className="text-xs font-normal text-[var(--muted)]">
-            Zaznacz od razu wszystkie zdjęcia tej historii. Pierwsze będzie okładką, reszta trafi do galerii - podpisy
-            do zdjęć dodasz niżej, na liście historii.
+            Zaznacz od razu wszystkie zdjęcia tej historii. Po wgraniu wybierzesz poniżej, które ma być okładką -
+            reszta trafi do galerii, a podpisy do zdjęć dodasz później na liście historii.
           </span>
           <input
             type="file"
             multiple
+            disabled={pendingPhotos.length > 0}
             accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.avif,.heic,.heif"
             onChange={(event) => {
               if (!event.target.files || event.target.files.length === 0) {
@@ -293,7 +345,7 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
               void uploadPhotoStoryImages(event.target.files);
               event.currentTarget.value = "";
             }}
-            className="rounded-xl border border-[var(--line)] bg-white px-3 py-2"
+            className="rounded-xl border border-[var(--line)] bg-white px-3 py-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
         <label className="grid gap-1 text-sm md:col-span-2">
@@ -321,6 +373,51 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
         </p>
       )}
 
+      {pendingPhotos.length > 0 && (
+        <div className="mt-3 rounded-2xl border border-[var(--line)] bg-white/80 p-4">
+          <p className="text-sm font-semibold">Wybierz okładkę nowej historii</p>
+          <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+            {pendingPhotos.map((src, index) => (
+              <li key={`${src}-${index}`}>
+                <button
+                  type="button"
+                  onClick={() => setPendingCoverIndex(index)}
+                  aria-pressed={index === pendingCoverIndex}
+                  aria-label={`Ustaw jako okładkę: zdjęcie ${index + 1}`}
+                  className={`relative block aspect-square w-full overflow-hidden rounded-lg border-2 ${
+                    index === pendingCoverIndex ? "border-[var(--accent)]" : "border-transparent"
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  {index === pendingCoverIndex && (
+                    <span className="absolute inset-x-0 bottom-0 bg-[var(--accent)] py-0.5 text-center text-[10px] font-semibold uppercase tracking-[0.06em] text-white">
+                      Okładka
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => void createPendingStory()}
+              className="rounded-xl bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:brightness-95"
+            >
+              Utwórz historię
+            </button>
+            <button
+              type="button"
+              onClick={cancelPendingPhotos}
+              className="rounded-xl border border-[var(--line)] bg-white px-4 py-2 text-sm font-semibold hover:bg-black/5"
+            >
+              Anuluj
+            </button>
+          </div>
+        </div>
+      )}
+
       {photoStoriesMessage.length > 0 && (
         <p className="mt-3 rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-sm text-[var(--muted)]">{photoStoriesMessage}</p>
       )}
@@ -332,14 +429,51 @@ export function PhotoStoriesTab({ hidden }: PhotoStoriesTabProps) {
       ) : (
         <ul className="mt-4 grid gap-3">
           {photoStories.map((story, index) => (
-            <li key={story.id} className="rounded-xl border border-[var(--line)] bg-white p-3">
+            <li
+              key={story.id}
+              className={`rounded-xl border p-3 ${story.hidden ? "border-dashed border-[var(--line)] bg-[var(--sand)] opacity-70" : "border-[var(--line)] bg-white"}`}
+            >
               <div className="grid gap-3 md:grid-cols-[0.22fr_0.78fr]">
                 <div className="relative min-h-28 overflow-hidden rounded-lg border border-[var(--line)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={story.src} alt={story.title} className="h-full w-full object-cover" loading="lazy" />
                 </div>
                 <div className="grid gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Pozycja {index + 1}</p>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+                      Pozycja {index + 1}
+                      {story.hidden && <span className="ml-2 rounded-full bg-[var(--line)] px-2 py-0.5 text-[10px] text-[var(--ink)]">Ukryta</span>}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => moveStory(index, -1)}
+                        disabled={index === 0}
+                        aria-label="Przesuń wyżej"
+                        title="Przesuń wyżej"
+                        className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveStory(index, 1)}
+                        disabled={index === photoStories.length - 1}
+                        aria-label="Przesuń niżej"
+                        title="Przesuń niżej"
+                        className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleStoryHidden(story.id)}
+                        className="rounded-lg border border-[var(--line)] px-2 py-1 text-xs font-semibold hover:bg-black/5"
+                      >
+                        {story.hidden ? "Pokaż" : "Ukryj"}
+                      </button>
+                    </div>
+                  </div>
                   <input
                     value={story.title}
                     onChange={(event) => updatePhotoStory(story.id, { title: event.target.value })}

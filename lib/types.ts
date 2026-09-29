@@ -121,6 +121,8 @@ export type PhotoStory = {
   body?: string;
   /** Dodatkowe zdjęcia galerii artykułu (poza okładką). */
   photos?: PhotoStoryPhoto[];
+  /** Ukryta ze strony głównej i /stories, ale zostaje w bazie (nie usunięta). */
+  hidden?: boolean;
 };
 
 export type RouteReviewStatus = "pending" | "approved" | "rejected";

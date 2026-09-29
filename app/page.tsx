@@ -21,6 +21,8 @@ const ratingOptions = [3.5, 4, 4.3, 4.6];
 const asphaltOptions = [50, 60, 70, 80];
 const MAX_COMPARE = 3;
 const PAGE_SIZE = 9;
+// 1 wyróżniona + do tylu obok - kolejność i widoczność ustala się w panelu admina.
+const MAX_SIDE_STORIES = 4;
 
 const DEFAULT_AGE = 8;
 // 0 = brak filtra domyślnie: żaden chip nie jest podświetlony, dopóki ktoś sam go nie wybierze,
@@ -251,8 +253,8 @@ function HomeContent() {
     () => routes.filter((route) => compareIds.includes(route.id)).slice(0, MAX_COMPARE),
     [compareIds, routes]
   );
-  const storiesToRender = photoStories.length > 0 ? photoStories : defaultPhotoStories;
-  const [featuredStory, ...sideStories] = storiesToRender;
+  const visibleStories = (photoStories.length > 0 ? photoStories : defaultPhotoStories).filter((story) => !story.hidden);
+  const [featuredStory, ...sideStories] = visibleStories.slice(0, 1 + MAX_SIDE_STORIES);
 
   const verifiedCount = routes.filter((route) => route.verification.level === "verified").length;
   const regionCount = regions.length - 1;
