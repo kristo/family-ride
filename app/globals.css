@@ -290,6 +290,16 @@ h3 {
   outline-offset: 2px;
 }
 
+/* Przeglądarki domyślnie pokazują zwykły kursor (nie łapkę) na <button>, w przeciwieństwie
+   do <a href>. Bez tego żaden przycisk w serwisie nie sygnalizuje wizualnie, że jest klikalny. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 ::selection {
   background: color-mix(in oklab, var(--accent) 30%, white);
   color: var(--ink);

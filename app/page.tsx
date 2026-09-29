@@ -23,8 +23,10 @@ const MAX_COMPARE = 3;
 const PAGE_SIZE = 9;
 
 const DEFAULT_AGE = 8;
-const DEFAULT_RATING = 4;
-const DEFAULT_ASPHALT = 60;
+// 0 = brak filtra domyślnie: żaden chip nie jest podświetlony, dopóki ktoś sam go nie wybierze,
+// więc żadna zapisana trasa nie znika z listy bez wyraźnego działania użytkownika.
+const DEFAULT_RATING = 0;
+const DEFAULT_ASPHALT = 0;
 const DEFAULT_SORT = "added-desc";
 
 const heroPhoto = {

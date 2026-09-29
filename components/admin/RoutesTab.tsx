@@ -212,6 +212,11 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
   };
 
   const resetRouteForm = () => {
+    // Zawsze wracamy do trybu "Dodaj nową". Bez tego, po zapisaniu/anulowaniu edycji,
+    // tryb zostawał na "edit" z wyczyszczonym editingRouteId - przycisk zapisu był wtedy
+    // wyłączony (patrz isRouteSubmitDisabled) i wpisywanie danych nowej trasy nic nie dawało,
+    // dopóki ktoś ręcznie nie kliknął "Dodaj nową" jeszcze raz.
+    setRouteCrudMode("create");
     setEditingRouteId(null);
     setForm(initialState);
     setVerificationChecklist(initialVerificationChecklist);
