@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { approveSubmission } from "@/lib/server/community-routes";
+import { revalidatePublicPages } from "@/lib/server/revalidate-site";
 
 export const runtime = "nodejs";
 
@@ -28,6 +29,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: "Nie znaleziono zgłoszenia." }, { status: 404 });
   }
 
+  revalidatePublicPages();
   return NextResponse.json({
     success: true,
     submission: approved.submission,

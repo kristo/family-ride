@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { approveReview } from "@/lib/server/route-reviews";
+import { revalidatePublicPages } from "@/lib/server/revalidate-site";
 
 export const runtime = "nodejs";
 
@@ -22,5 +23,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: "Nie znaleziono oceny." }, { status: 404 });
   }
 
+  revalidatePublicPages({ routeId: review.routeId });
   return NextResponse.json({ success: true, review });
 }

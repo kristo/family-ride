@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createPublishedRouteFromDraft, listPublishedRoutes } from "@/lib/server/community-routes";
 import type { RouteDraft, RouteSurfaceEstimate, RouteVerificationLevel } from "@/lib/types";
+import { revalidatePublicPages } from "@/lib/server/revalidate-site";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -141,6 +142,7 @@ export async function POST(request: Request) {
       note: asString(payload.note) || undefined,
     });
 
+    revalidatePublicPages();
     return NextResponse.json({ success: true, route }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Nie udało się zapisać trasy." }, { status: 500 });

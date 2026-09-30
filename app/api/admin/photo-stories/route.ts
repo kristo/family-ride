@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { PhotoStory } from "@/lib/types";
 import { listPhotoStories, savePhotoStories } from "@/lib/server/photo-stories";
+import { revalidatePublicPages } from "@/lib/server/revalidate-site";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
     }
 
     const stories = await savePhotoStories(payload.stories);
+    revalidatePublicPages();
     return NextResponse.json({ success: true, stories });
   } catch (error) {
     console.error("Photo Stories save failed:", error);

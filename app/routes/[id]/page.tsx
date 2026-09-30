@@ -11,6 +11,10 @@ import { getPublishedRouteById, getPublishedRouteIds } from "@/lib/server/commun
 import { getApprovedReviewsForRoute } from "@/lib/server/route-reviews";
 import { notFound } from "next/navigation";
 import { getAllRouteIds, getRouteById } from "@/lib/routes";
+import { SITE_NAME, SITE_URL, absoluteUrl, jsonLdString, truncateDescription } from "@/lib/site";
+
+// Trasy z panelu admina zmieniają się bez wdrożenia; poza tym strona odświeża się na żądanie (revalidatePath).
+export const revalidate = 60;
 
 type RoutePageProps = {
   params: Promise<{ id: string }>;
@@ -85,9 +89,24 @@ export async function generateMetadata({ params }: RoutePageProps): Promise<Meta
     };
   }
 
+  const title = `${route.name} - trasa rowerowa z dziećmi (${route.region})`;
+  const description = truncateDescription(route.description);
+  const photo = route.gallery[0];
+  const images = photo ? [{ url: absoluteUrl(photo.src), alt: photo.alt }] : undefined;
+
   return {
-    title: route.name,
-    description: route.description,
+    title,
+    description,
+    alternates: { canonical: `/routes/${route.id}` },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      locale: "pl_PL",
+      url: `/routes/${route.id}`,
+      ...(images ? { images } : {}),
+    },
+    twitter: { card: "summary_large_image", title, description, ...(images ? { images: images.map((i) => i.url) } : {}) },
   };
 }
 
@@ -106,8 +125,51 @@ export default async function RoutePage({ params }: RoutePageProps) {
       : null;
   const displayedRating = reviewsAverage ?? route.rating;
 
+  const routeUrl = `${SITE_URL}/routes/${route.id}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: SITE_NAME, item: `${SITE_URL}/` },
+          { "@type": "ListItem", position: 2, name: route.name, item: routeUrl },
+        ],
+      },
+      {
+        "@type": "Article",
+        headline: route.name,
+        description: truncateDescription(route.description, 300),
+        inLanguage: "pl-PL",
+        mainEntityOfPage: routeUrl,
+        dateModified: route.verification.updatedAt,
+        ...(route.gallery[0] ? { image: [absoluteUrl(route.gallery[0].src)] } : {}),
+        author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+        publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+        about: {
+          "@type": "TouristAttraction",
+          name: route.name,
+          touristType: "Rodziny z dziećmi",
+          address: { "@type": "PostalAddress", addressRegion: route.region, addressCountry: "PL" },
+          ...(reviewsAverage !== null
+            ? {
+                aggregateRating: {
+                  "@type": "AggregateRating",
+                  ratingValue: reviewsAverage,
+                  reviewCount: approvedReviews.length,
+                  bestRating: 5,
+                  worstRating: 1,
+                },
+              }
+            : {}),
+        },
+      },
+    ],
+  };
+
   return (
     <div className="paper-grid relative isolate min-h-screen overflow-hidden bg-[var(--sand)] text-[var(--ink)]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }} />
       <div className="pointer-events-none absolute inset-x-0 -top-40 h-[24rem] [mask-image:linear-gradient(to_bottom,black_40%,transparent)] bg-[radial-gradient(circle_at_20%_20%,rgba(240,90,36,.28),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(0,95,115,.30),transparent_50%)]" />
 
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 pb-20 pt-14 md:px-10 lg:px-14">

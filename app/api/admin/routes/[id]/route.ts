@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { deletePublishedRoute, updatePublishedRouteFromDraft } from "@/lib/server/community-routes";
 import type { RouteDraft, RouteSurfaceEstimate, RouteVerificationLevel } from "@/lib/types";
+import { revalidatePublicPages } from "@/lib/server/revalidate-site";
 
 export const runtime = "nodejs";
 
@@ -59,8 +60,7 @@ function normalizeDraft(input: UpdatePayload["draft"]): RouteDraft | null {
     !Number.isFinite(elevationM) ||
     !Number.isFinite(minAge) ||
     !Number.isFinite(asphaltPct) ||
-    !Number.isFinite(rating) ||
-    gpxUrl.length === 0
+    !Number.isFinite(rating)
   ) {
     return null;
   }
@@ -143,6 +143,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json({ error: "Nie znaleziono trasy." }, { status: 404 });
   }
 
+  revalidatePublicPages({ routeId: id });
   return NextResponse.json({ success: true, route });
 }
 
@@ -154,5 +155,6 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
     return NextResponse.json({ error: "Nie znaleziono trasy." }, { status: 404 });
   }
 
+  revalidatePublicPages({ routeId: id });
   return NextResponse.json({ success: true });
 }

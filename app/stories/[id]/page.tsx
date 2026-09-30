@@ -8,6 +8,7 @@ import { ArrowRightIcon } from "@/components/ui/Icons";
 import { Photo } from "@/components/ui/Photo";
 import { defaultPhotoStories } from "@/lib/default-photo-stories";
 import { listPhotoStories } from "@/lib/server/photo-stories";
+import { truncateDescription } from "@/lib/site";
 import type { PhotoStory } from "@/lib/types";
 
 // Historie edytuje się w adminie bez ponownego wdrożenia, więc strona nie może być statyczna.
@@ -43,8 +44,16 @@ export async function generateMetadata({ params }: StoryPageProps): Promise<Meta
 
   return {
     title: story.title,
-    description: story.body ?? story.text,
-    openGraph: { title: story.title, description: story.body ?? story.text, images: [{ url: story.src }] },
+    description: truncateDescription(story.body ?? story.text),
+    alternates: { canonical: `/stories/${story.id}` },
+    openGraph: {
+      title: story.title,
+      description: truncateDescription(story.body ?? story.text),
+      type: "article",
+      locale: "pl_PL",
+      url: `/stories/${story.id}`,
+      images: [{ url: story.src }],
+    },
   };
 }
 
