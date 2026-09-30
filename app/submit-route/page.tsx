@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import type { RouteDraft, RouteSurfaceEstimate } from "@/lib/types";
+import { VOIVODESHIPS } from "@/lib/voivodeships";
 
 type StravaStatus = {
   configured: boolean;
@@ -368,7 +369,18 @@ export default function SubmitRoutePage() {
           </label>
           <label className="grid gap-1 text-sm">
             <span className="font-semibold">Region</span>
-            <input value={form.region} onChange={(e) => setForm((prev) => ({ ...prev, region: e.target.value }))} className="rounded-xl border border-[var(--line)] bg-white px-3 py-2" />
+            <select
+              value={form.region}
+              onChange={(e) => setForm((prev) => ({ ...prev, region: e.target.value }))}
+              className="rounded-xl border border-[var(--line)] bg-white px-3 py-2"
+            >
+              <option value="">Wybierz województwo…</option>
+              {VOIVODESHIPS.map((voivodeship) => (
+                <option key={voivodeship} value={voivodeship}>
+                  {voivodeship}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="grid gap-1 text-sm">
             <span className="font-semibold">Ocena (1-5)</span>

@@ -5,6 +5,13 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { StravaImportPanel } from "@/components/admin/StravaImportPanel";
 import { csvToList, preparePhotoForUpload } from "@/lib/client/admin-uploads";
 import type { Route, RouteSurfaceEstimate } from "@/lib/types";
+import { VOIVODESHIPS } from "@/lib/voivodeships";
+
+// Stare, zastąpione dziś marką Family Ride na kafelku, stockowe zdjęcia-zapchajdziury -
+// odfiltrowywane wszędzie, gdzie budujemy listę zdjęć, żeby nie mieszały się z prawdziwym
+// zdjęciem dodanym później do tej samej trasy (patrz komentarz w app/api/admin/routes/[id]/route.ts).
+const PLACEHOLDER_PHOTO_SRCS = new Set(["/photos/family-bike-1.jpg", "/photos/family-bike-2.jpg", "/photos/family-bike-3.jpg"]);
+const withoutPlaceholderPhotos = (urls: string[]) => urls.filter((url) => !PLACEHOLDER_PHOTO_SRCS.has(url.trim()));
 
 export type FormState = {
   name: string;
@@ -199,7 +206,7 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
       mapEmbedUrl: route.mapEmbedUrl,
       stravaUrl: route.stravaUrl ?? "",
       videoUrl: route.videoUrl ?? "",
-      photoUrlsCsv: route.gallery.map((item) => item.src).join(", "),
+      photoUrlsCsv: withoutPlaceholderPhotos(route.gallery.map((item) => item.src)).join(", "),
       verificationLevel: route.verification.level,
     });
 
@@ -322,7 +329,8 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
 
       if (kind === "photo") {
         setForm((prev) => {
-          const nextCsv = prev.photoUrlsCsv.trim().length > 0 ? `${prev.photoUrlsCsv}, ${payload.file?.url}` : (payload.file?.url ?? "");
+          const existing = withoutPlaceholderPhotos(csvToList(prev.photoUrlsCsv));
+          const nextCsv = [...existing, payload.file?.url].filter((url): url is string => Boolean(url)).join(", ");
           return {
             ...prev,
             photoUrlsCsv: nextCsv,
@@ -396,7 +404,7 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
     }
 
     setForm((prev) => {
-      const current = csvToList(prev.photoUrlsCsv);
+      const current = withoutPlaceholderPhotos(csvToList(prev.photoUrlsCsv));
       const merged = [...current, ...uploadedUrls];
       return {
         ...prev,
@@ -443,7 +451,7 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
       return;
     }
 
-    const photoUrls = csvToList(form.photoUrlsCsv);
+    const photoUrls = withoutPlaceholderPhotos(csvToList(form.photoUrlsCsv));
 
     const draft = {
       name: form.name.trim(),
@@ -481,20 +489,13 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
               : "Wersja robocza do dalszego dopracowania.",
       },
       surfaceEstimate: importedSurfaceEstimate ?? undefined,
-      gallery:
-        photoUrls.length > 0
-          ? photoUrls.map((url, index) => ({
-              src: url,
-              alt: `${form.name.trim() || "Trasa"} - zdjęcie ${index + 1}`,
-              caption: `Kadr ${index + 1} z trasy`,
-            }))
-          : [
-              {
-                src: "/photos/family-bike-1.jpg",
-                alt: "Podglad trasy rodzinnej",
-                caption: "Dodaj docelowe zdjęcia trasy w kolejnym kroku.",
-              },
-            ],
+      // Brak zdjęć to nie błąd - kafelek trasy ma własny placeholder z marką Family Ride
+      // zamiast stockowego zdjęcia, więc nie trzeba tu niczym "wypełniać" pustej galerii.
+      gallery: photoUrls.map((url, index) => ({
+        src: url,
+        alt: `${form.name.trim() || "Trasa"} - zdjęcie ${index + 1}`,
+        caption: `Kadr ${index + 1} z trasy`,
+      })),
     };
 
     try {
@@ -710,7 +711,18 @@ export function RoutesTab({ hidden, publishedRoutes, refreshPublishedRoutes }: R
             </label>
             <label className="grid gap-1 text-sm">
               <span className="font-semibold">Region</span>
-              <input value={form.region} onChange={(e) => setForm((prev) => ({ ...prev, region: e.target.value }))} className="rounded-xl border border-[var(--line)] bg-white px-3 py-2" />
+              <select
+                value={form.region}
+                onChange={(e) => setForm((prev) => ({ ...prev, region: e.target.value }))}
+                className="rounded-xl border border-[var(--line)] bg-white px-3 py-2"
+              >
+                <option value="">Wybierz województwo…</option>
+                {VOIVODESHIPS.map((voivodeship) => (
+                  <option key={voivodeship} value={voivodeship}>
+                    {voivodeship}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="grid gap-1 text-sm">
               <span className="font-semibold">Ocena (1-5)</span>

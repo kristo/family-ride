@@ -103,16 +103,12 @@ function normalizeDraft(input: UpdatePayload["draft"]): RouteDraft | null {
     bestMonths: asStringArray(input.bestMonths),
     packingList: asStringArray(input.packingList),
     surfaceEstimate: input.surfaceEstimate ?? undefined,
-    gallery:
-      gallery.length > 0
-        ? gallery
-        : [
-            {
-              src: "/photos/family-bike-1.jpg",
-              alt: "Podglad trasy",
-              caption: "Material dodany przez administratora.",
-            },
-          ],
+    // Brak zdjęć nie jest błędem - RouteCard i strona trasy mają własny, marką Family Ride
+    // opatrzony placeholder na czas, aż ktoś doda prawdziwe zdjęcie. Wcześniej wstawiany tu
+    // był ten sam stockowy plik dla każdej trasy bez zdjęcia, co po dodaniu prawdziwego
+    // zdjęcia w kolejnym kroku (dopisywanym, nie zastępującym) zostawiało dwa zdjęcia w
+    // galerii i pokazywało na kafelku dalej ten sam stockowy kadr co inne trasy.
+    gallery,
   };
 }
 

@@ -102,16 +102,10 @@ function normalizeDraft(input: SubmissionPayload["draft"]): RouteDraft | null {
     bestMonths: asStringArray(input.bestMonths),
     packingList: asStringArray(input.packingList),
     surfaceEstimate: input.surfaceEstimate ?? undefined,
-    gallery:
-      gallery.length > 0
-        ? gallery
-        : [
-            {
-              src: "/photos/family-bike-1.jpg",
-              alt: "Podglad trasy",
-              caption: "Material dodany przez użytkownika.",
-            },
-          ],
+    // Brak zdjęć nie jest błędem - RouteCard i strona trasy mają własny, marką Family Ride
+    // opatrzony placeholder na czas, aż ktoś doda prawdziwe zdjęcie (patrz komentarz w
+    // app/api/admin/routes/[id]/route.ts przy tym samym polu).
+    gallery,
   };
 }
 

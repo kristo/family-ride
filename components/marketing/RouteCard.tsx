@@ -43,7 +43,15 @@ export function RouteCard({ route, isCompared, compareDisabled, onToggleCompare 
         {photo ? (
           <RouteCardPhoto src={photo.src} alt={photo.alt} />
         ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,var(--pine-2),var(--pine))]" />
+          <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--pine-2),var(--pine))]">
+            <Image
+              src="/family-ride-mark.svg"
+              alt=""
+              width={96}
+              height={96}
+              className="rounded-2xl opacity-90 shadow-lg"
+            />
+          </div>
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
 
