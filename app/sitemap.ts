@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getAllGuides } from "@/lib/guides";
 import { getAllRoutes } from "@/lib/routes";
 import { SITE_URL } from "@/lib/site";
 import { defaultPhotoStories } from "@/lib/default-photo-stories";
@@ -26,6 +27,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${SITE_URL}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/submit-route`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/poradniki`, changeFrequency: "weekly", priority: 0.7 },
+    ...getAllGuides().map((guide) => ({
+      url: `${SITE_URL}/poradniki/${guide.slug}`,
+      lastModified: guide.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     ...[...routeIds].map(([id, updatedAt]) => ({
       url: `${SITE_URL}/routes/${id}`,
       lastModified: updatedAt,
