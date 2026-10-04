@@ -11,7 +11,7 @@ export function SiteFooter() {
             <span className="font-display text-lg font-bold text-white">Family Ride</span>
           </div>
           <p className="mt-4 text-sm leading-relaxed">
-            Trasy dodają użytkownicy po zalogowaniu, a publikacja pojawia się po zatwierdzeniu przez admina.
+            Trasy zgłaszają rodziny takie jak Ty. Każdą propozycję sprawdzamy i przygotowujemy, zanim trafi na stronę.
           </p>
         </div>
 
@@ -19,7 +19,9 @@ export function SiteFooter() {
           <Link href="/#trasy" className="transition hover:text-white">Trasy</Link>
           <Link href="/#stories" className="transition hover:text-white">Historie</Link>
           <Link href="/#newsletter" className="transition hover:text-white">Newsletter</Link>
-          <Link href="/submit-route" className="transition hover:text-white">Dodaj trasę</Link>
+          <Link href="/poradniki" className="transition hover:text-white">Poradniki</Link>
+          <Link href="/zaproponuj-trase" className="transition hover:text-white">Zaproponuj trasę</Link>
+          <Link href="/submit-route" className="transition hover:text-white">Dodaj trasę z GPX</Link>
         </nav>
       </div>
     </footer>

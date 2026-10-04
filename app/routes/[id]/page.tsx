@@ -4,6 +4,7 @@ import Link from "next/link";
 import { GpxMap } from "@/components/maps/GpxMap";
 import { Gallery } from "@/components/ui/Gallery";
 import { RouteVerificationBadge } from "@/components/ui/RouteVerificationBadge";
+import { ProposeRouteCta } from "@/components/marketing/ProposeRouteCta";
 import { RouteReviews } from "@/components/marketing/RouteReviews";
 import { getRouteDifficultyLevel } from "@/lib/route-difficulty";
 import { gpxQualityLabel } from "@/lib/route-verification";
@@ -371,6 +372,8 @@ export default async function RoutePage({ params }: RoutePageProps) {
         </section>
 
         <RouteReviews routeId={route.id} routeName={route.name} initialReviews={approvedReviews} />
+
+        <ProposeRouteCta variant="compact" />
       </main>
     </div>
   );

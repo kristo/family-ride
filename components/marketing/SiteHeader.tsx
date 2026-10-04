@@ -57,10 +57,10 @@ export function SiteHeader({ solid = false }: SiteHeaderProps) {
           </div>
           <ThemeToggle className={`ml-1 ${scrolled ? "hover:bg-black/5" : "hover:bg-white/15"}`} />
           <Link
-            href="/submit-route"
+            href="/zaproponuj-trase"
             className="ml-2 rounded-full bg-[var(--accent)] px-4 py-2 font-bold text-white transition hover:brightness-110"
           >
-            Dodaj trasę
+            Zaproponuj trasę
           </Link>
         </nav>
       </div>

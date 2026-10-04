@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense, type FormEvent, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CompareBar } from "@/components/marketing/CompareBar";
+import { ProposeRouteCta } from "@/components/marketing/ProposeRouteCta";
 import { RouteCard } from "@/components/marketing/RouteCard";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
@@ -471,6 +472,8 @@ function HomeContent({ communityRoutes, reviewSummaries, photoStories }: HomeCli
             </nav>
           )}
         </section>
+
+        <ProposeRouteCta />
 
         {/* STORIES */}
         <section id="stories" className="mt-20 bg-[var(--pine)] py-16 text-white md:mt-28 md:py-24">
