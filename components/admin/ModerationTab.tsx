@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PitchesPanel } from "@/components/admin/PitchesPanel";
 import type { RouteSubmission } from "@/lib/types";
 
 type ModerationTabProps = {
@@ -123,6 +124,8 @@ export function ModerationTab({ hidden, onRoutesChanged }: ModerationTabProps) {
           ))}
         </ul>
       )}
+
+      <PitchesPanel />
     </section>
   );
 }

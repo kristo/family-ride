@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: `${SITE_URL}/`, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_URL}/zaproponuj-trase`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${SITE_URL}/submit-route`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/poradniki`, changeFrequency: "weekly", priority: 0.7 },
     ...getAllGuides().map((guide) => ({

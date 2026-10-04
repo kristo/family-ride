@@ -148,3 +148,34 @@ export type RouteReviewSummary = {
   average: number;
   count: number;
 };
+
+export type PitchStatus = "new" | "in-progress" | "published" | "rejected";
+
+export type PitchPointKind = "start" | "stop" | "attraction" | "food" | "warning";
+
+export type PitchPoint = {
+  lat: number;
+  lng: number;
+  kind: PitchPointKind;
+  label: string;
+};
+
+/** Lekka propozycja trasy od użytkownika: punkty na mapie + zdjęcia + opis, bez GPX. */
+export type RoutePitch = {
+  id: string;
+  status: PitchStatus;
+  createdAt: string;
+  updatedAt: string;
+  submitterName: string;
+  /** Tylko do kontaktu i powiadomienia o publikacji - nigdy nie pokazywany publicznie. */
+  submitterEmail?: string;
+  name: string;
+  region: string;
+  description: string;
+  points: PitchPoint[];
+  photos: { src: string }[];
+  /** Zgoda zgłaszającego na publikację zdjęć i opisu (wymagana). */
+  rightsConfirmed: boolean;
+  adminNote?: string;
+  publishedRouteId?: string;
+};

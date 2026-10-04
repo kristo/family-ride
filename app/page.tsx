@@ -10,10 +10,28 @@ import type { PhotoStory, Route, RouteReviewSummary } from "@/lib/types";
 // Odświeżane też na żądanie (revalidatePath) po zmianach w panelu admina.
 export const revalidate = 60;
 
+const HOME_TITLE = "Family Ride - trasy rowerowe dla rodzin z dziećmi";
+
+// openGraph/twitter ze strony nadpisują całe obiekty z layoutu (płytkie scalanie), więc obrazki
+// trzeba podać tu ponownie - inaczej udostępniony link straciłby miniaturę.
 export const metadata: Metadata = {
-  title: { absolute: "Family Ride - trasy rowerowe dla rodzin z dziećmi" },
+  title: { absolute: HOME_TITLE },
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
+  openGraph: {
+    title: HOME_TITLE,
+    description: SITE_DESCRIPTION,
+    type: "website",
+    locale: "pl_PL",
+    url: "/",
+    images: [{ url: "/og-family-ride-light.png", width: 1200, height: 630, alt: "Family Ride - trasy rowerowe dla rodzin" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: HOME_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/og-family-ride-dark.png"],
+  },
 };
 
 async function safe<T>(load: () => Promise<T>, fallback: T): Promise<T> {

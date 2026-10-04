@@ -329,6 +329,14 @@ export default function SubmitRoutePage() {
           Dodaj swoją trasę ze Stravy i materiały. Zgłoszenie trafi do kolejki moderacji i po akceptacji pojawi się publicznie.
         </p>
 
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          Nie masz śladu GPX? Wystarczy kilka punktów na mapie i zdjęcia -{" "}
+          <Link href="/zaproponuj-trase" className="font-semibold text-[var(--accent-text)] underline">
+            zaproponuj trasę
+          </Link>
+          , a my przygotujemy resztę.
+        </p>
+
         <div className="mt-5 rounded-xl border border-[var(--line)] bg-white p-4">
           <p className="text-sm font-semibold">Strava</p>
           {!stravaStatus.connected ? (
