@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Bricolage_Grotesque, Manrope } from "next/font/google";
 import { MarketingConsent } from "@/components/marketing/MarketingConsent";
+import { Analytics } from "@vercel/analytics/next";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
@@ -105,6 +106,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         ) : null}
         {children}
         <MarketingConsent />
+        <Analytics />
       </body>
     </html>
   );
