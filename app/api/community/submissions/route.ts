@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { createSubmission } from "@/lib/server/community-routes";
+import { notifyOwner } from "@/lib/server/notify";
 import type { RouteDraft, RouteSurfaceEstimate } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -133,6 +134,14 @@ export async function POST(request: Request) {
       submitterEmail: asString(payload.submitterEmail) || undefined,
       draft,
     });
+
+    after(() =>
+      notifyOwner(`Family Ride: nowa trasa do akceptacji - ${draft.name}`, [
+        `Nowe zgłoszenie trasy: ${draft.name} (${draft.region}, ${draft.distanceKm} km).`,
+        `Autor: ${submitterName}${submission.submitterEmail ? ` <${submission.submitterEmail}>` : ""}`,
+        `Zaakceptuj lub odrzuć w panelu admina: ${process.env.NEXT_PUBLIC_APP_URL || ""}/admin`,
+      ]),
+    );
 
     return NextResponse.json({
       success: true,

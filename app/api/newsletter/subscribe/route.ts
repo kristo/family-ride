@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { subscribeToNewsletter } from "@/lib/server/newsletter";
+import { notifyOwner } from "@/lib/server/notify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +19,13 @@ export async function POST(request: Request) {
     if (result.status === "exists") {
       return NextResponse.json({ ok: true, status: "exists" });
     }
+
+    after(() =>
+      notifyOwner("Family Ride: nowy zapis na newsletter", [
+        "Ktoś zapisał się na newsletter.",
+        `E-mail: ${email.trim().toLowerCase()}`,
+      ]),
+    );
 
     return NextResponse.json({ ok: true, status: "subscribed" });
   } catch {
