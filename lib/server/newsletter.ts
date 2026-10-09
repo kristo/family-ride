@@ -9,15 +9,13 @@ export type NewsletterSubscriber = {
 };
 
 const NEWSLETTER_BLOB_PATH = "newsletter/subscribers.json";
-const LOCAL_NEWSLETTER_PATH = path.join(process.cwd(), ".data", "newsletter", "subscribers.json");
+function localNewsletterPath(): string {
+  return path.join(process.cwd(), ".data", "newsletter", "subscribers.json");
+}
 
 function getBlobToken(): string | null {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   return token && token.trim().length > 0 ? token : null;
-}
-
-function isBlobEnabled(): boolean {
-  return Boolean(getBlobToken());
 }
 
 function normalizeEmail(email: string): string {
@@ -28,45 +26,51 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function parseSubscribers(payload: unknown): NewsletterSubscriber[] {
+  const subscribers = (payload as { subscribers?: unknown } | null)?.subscribers;
+  if (!Array.isArray(subscribers)) {
+    throw new Error("Newsletter: nieprawidłowy format listy subskrybentów.");
+  }
+  return subscribers as NewsletterSubscriber[];
+}
+
+// Pusta lista tylko wtedy, gdy pliku naprawdę jeszcze nie ma. Każdy inny błąd odczytu musi
+// polecieć dalej - subscribeToNewsletter zapisuje całą listę, więc "[]" po chwilowej awarii
+// Blob/CDN nadpisałoby wszystkich dotychczasowych subskrybentów jednym nowym adresem.
 async function readSubscribers(): Promise<NewsletterSubscriber[]> {
-  if (isBlobEnabled()) {
-    try {
-      const token = getBlobToken();
-      if (!token) {
-        return [];
-      }
-
-      const listed = await list({ token, prefix: NEWSLETTER_BLOB_PATH, limit: 1 });
-      const blob = listed.blobs.find((item) => item.pathname === NEWSLETTER_BLOB_PATH);
-      if (!blob) {
-        return [];
-      }
-
-      // The Blob CDN caches this fixed URL for a month by default and ignores our
-      // request-side no-store, so a fresh write can keep serving the old subscriber
-      // list for up to a month. Busting with the blob's own uploadedAt (see
-      // lib/server/photo-stories.ts for the same fix) gives every save a fresh
-      // cache key while repeat reads of the same version still hit the cache.
-      const cacheBustedUrl = `${blob.url}?v=${new Date(blob.uploadedAt).getTime()}`;
-      const response = await fetch(cacheBustedUrl, { cache: "no-store" });
-      if (!response.ok) {
-        return [];
-      }
-
-      const payload = (await response.json()) as { subscribers?: NewsletterSubscriber[] };
-      return Array.isArray(payload.subscribers) ? payload.subscribers : [];
-    } catch {
+  const token = getBlobToken();
+  if (token) {
+    const listed = await list({ token, prefix: NEWSLETTER_BLOB_PATH, limit: 1 });
+    const blob = listed.blobs.find((item) => item.pathname === NEWSLETTER_BLOB_PATH);
+    if (!blob) {
       return [];
     }
+
+    // The Blob CDN caches this fixed URL for a month by default and ignores our
+    // request-side no-store, so a fresh write can keep serving the old subscriber
+    // list for up to a month. Busting with the blob's own uploadedAt (see
+    // lib/server/photo-stories.ts for the same fix) gives every save a fresh
+    // cache key while repeat reads of the same version still hit the cache.
+    const cacheBustedUrl = `${blob.url}?v=${new Date(blob.uploadedAt).getTime()}`;
+    const response = await fetch(cacheBustedUrl, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Newsletter: odczyt listy z Blob zwrócił ${response.status}.`);
+    }
+
+    return parseSubscribers(await response.json());
   }
 
+  let content: string;
   try {
-    const content = await readFile(LOCAL_NEWSLETTER_PATH, "utf-8");
-    const payload = JSON.parse(content) as { subscribers?: NewsletterSubscriber[] };
-    return Array.isArray(payload.subscribers) ? payload.subscribers : [];
-  } catch {
-    return [];
+    content = await readFile(localNewsletterPath(), "utf-8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
+    throw error;
   }
+
+  return parseSubscribers(JSON.parse(content));
 }
 
 async function writeSubscribers(subscribers: NewsletterSubscriber[]): Promise<void> {
@@ -79,12 +83,8 @@ async function writeSubscribers(subscribers: NewsletterSubscriber[]): Promise<vo
     2
   );
 
-  if (isBlobEnabled()) {
-    const token = getBlobToken();
-    if (!token) {
-      throw new Error("BLOB_READ_WRITE_TOKEN is missing.");
-    }
-
+  const token = getBlobToken();
+  if (token) {
     await put(NEWSLETTER_BLOB_PATH, payload, {
       access: "public",
       allowOverwrite: true,
@@ -98,8 +98,9 @@ async function writeSubscribers(subscribers: NewsletterSubscriber[]): Promise<vo
     return;
   }
 
-  await mkdir(path.dirname(LOCAL_NEWSLETTER_PATH), { recursive: true });
-  await writeFile(LOCAL_NEWSLETTER_PATH, payload, "utf-8");
+  const localPath = localNewsletterPath();
+  await mkdir(path.dirname(localPath), { recursive: true });
+  await writeFile(localPath, payload, "utf-8");
 }
 
 export async function subscribeToNewsletter(email: string, source = "homepage") {
